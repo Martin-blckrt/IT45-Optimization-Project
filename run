@@ -1,0 +1,11 @@
+#!/bin/bash
+echo javac -d ./bin src/instancegenerator/InstanceGenerator.java
+javac -d ./bin src/instancegenerator/InstanceGenerator.java
+
+export CLASSPATH=./bin
+echo java instancegenerator.InstanceGenerator
+java instancegenerator.InstanceGenerator
+
+echo Instance generated 
+ls instance*.c
+#gedit instance-*.c
