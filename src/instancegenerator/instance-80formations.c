@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #define NBR_INTERFACES        96
 #define NBR_APPRENANTS        80
@@ -405,24 +406,35 @@ int formation[NBR_FORMATION][6]={
    {79,SPECIALITE_ELECTRICITE,COMPETENCE_SIGNES,MARDI,9,11}
 };
 
-void fill_array(int array_to_fill[][6], int filler[][6], int index1, int index2)
+//Tableau représentant les agendas des interfaces, il est structuré de la manière suivante :
+//- Le premier index correspondant à l'interface concernée
+//- Le deuxième index correspond au jour de l'agenda
+//- Le troisième index correspond à l'heure du jour (allant de 0 à 13, représentant les heures de 6 à 19)
+int agenda_interfaces[NBR_INTERFACES][6][13];
+
+//Permet de changer la ligne d'un tableau à 6 dimension grâce à une autre ligne de tableau
+void fill_array(int *array_to_fill, int *filler)
 {
     for(int i = 0; i < 6; i++)
-        array_to_fill[index1][i] = filler[index2][i];
+        array_to_fill[i] = filler[i];
 }
 
+//Fusion de de deux tableaux délimités par debut-middle et middle+1 - fin
 void merge(int debut, int middle, int fin)
 {
-    int borne1 = middle - debut + 1;
-    int borne2 = fin - middle;
+    int borne1 = middle - debut + 1; //Borne de fin permettant de délimiter le tableau de gauche
+    int borne2 = fin - middle; //Borne de fin permettant de délimiter le tableau de droite
+
+    //Tableaux de gauche et de droite
     int temp_left[borne1][6];
     int temp_right[borne2][6];
 
+    //Remplissage des tableaux temporaires représentant la partie gauche et la partie droite de notre tableau final
     for(int j = 0; j < borne2; j++)
-        fill_array(temp_right, formation, j, middle + 1 + j);
+        fill_array(temp_right[j], formation[middle + 1 + j]);
 
     for(int i = 0; i < borne1; i++)
-        fill_array(temp_left, formation, i, debut + i);
+        fill_array(temp_left[i], formation[debut + i]);
 
 
     int i = 0;
@@ -431,29 +443,29 @@ void merge(int debut, int middle, int fin)
 
     while(i < borne1 && j < borne2)
     {
+        //On tri sur la durée de la formation décroissante
         if((temp_left[i][5] - temp_left[i][4]) <= (temp_right[j][5] - temp_right[j][4]))
         {
-
-            fill_array(formation, temp_right, k, j);
+            fill_array(formation[k], temp_right[j]);
             j++;
         }
         else
         {
-            fill_array(formation, temp_left, k, i);
+            fill_array(formation[k], temp_left[i]);
             i++;
         }
         k++;
     }
     while(i < borne1)
     {
-        fill_array(formation, temp_left, k, i);
+        fill_array(formation[k], temp_left[i]);
         k++;
         i++;
     }
 
     while(j < borne2)
     {
-        fill_array(formation, temp_right, k, j);
+        fill_array(formation[k], temp_right[j]);
         k++;
         j++;
     }
@@ -461,16 +473,16 @@ void merge(int debut, int middle, int fin)
 
 }
 
+//Cette fonction est un merge sort classique permettant de trier les formations des plus longues aux moins longues
 void tri_horaires_formation(int debut, int fin)
 {
     if(debut < fin)
     {
         int middle = debut + (fin - debut) / 2;
 
-
-        tri_horaires_formation(debut, middle);
-        tri_horaires_formation(middle+1, fin);
-        merge(debut, middle, fin);
+        tri_horaires_formation(debut, middle);//Tri tableau de gauche
+        tri_horaires_formation(middle+1, fin);//Tri tableau de droite
+        merge(debut, middle, fin);//Fusion des tableaux
     }
 
 }
@@ -488,44 +500,50 @@ void print_formation()
     }
 }
 
-int poids_interfaces(int spe[][3], int comp[][2], int index)
+//Calcule le poids d'une interface afin d'avoir les interfaces ayant beaucoup de spécialités en haut de liste et les interfaces avec double compétences
+//en fin de liste
+int poids_interfaces(int spe[3], int comp[3])
 {
     int poids = 0;
-    if(comp[index][0] == 1 && comp[index][1] == 1)
+    if(comp[0] == 1 && comp[1] == 1)
         poids = -NBR_SPECIALITES - 1;
-    return poids + spe[index][0] + spe[index][1] + spe[index][2];
+    return poids + spe[0] + spe[1] + spe[2];
 
 }
 
 void print_interfaces()
 {
-    for(int i = 0; i < NBR_INTERFACES; i++)
+    for(int i = 0; i < NBR_FORMATIONS; i++)
         printf("\nInterface %d : \nCompetences : %d %d\nSpecialites : %d %d %d\n\n", i, competences_interfaces[i][0], competences_interfaces[i][1],
                specialite_interfaces[i][0], specialite_interfaces[i][1], specialite_interfaces[i][2]);
 }
 
-void merge_update_interfaces(int update_spe[][3], int update_comp[][2], int spe_updater[][3], int comp_updater[][2], int index1, int index2)
+void merge_update_interfaces(int* update_spe, int* update_comp, int* spe_updater, int* comp_updater)
 {
     for(int i = 0; i < NBR_SPECIALITES; i++)
-        update_spe[index1][i] = spe_updater[index2][i];
+        update_spe[i] = spe_updater[i];
     for(int i = 0; i < 2; i++)
-        update_comp[index1][i] = comp_updater[index2][i];
+        update_comp[i] = comp_updater[i];
 }
 
 void merge_interfaces(int debut, int middle, int fin)
 {
+    //Délimitations des 2 tableaux
     int borne1 = middle - debut + 1;
     int borne2 = fin - middle;
+
+    //Tableaux temporaires (il y en a deux car on tri en même temps le tableau compétence et le tableau spécialités)
     int temp_comp_left[borne1][2];
     int temp_comp_right[borne2][2];
     int temp_spe_left[borne1][NBR_SPECIALITES];
     int temp_spe_right[borne2][NBR_SPECIALITES];
 
+    //Remplissage des tableaux temporaires
     for(int j = 0; j < borne2; j++)
-        merge_update_interfaces(temp_spe_right, temp_comp_right, specialite_interfaces, competences_interfaces, j, middle + 1 + j);
+        merge_update_interfaces(temp_spe_right[j], temp_comp_right[j], specialite_interfaces[middle + 1 + j], competences_interfaces[middle + 1 + j]);
 
     for(int i = 0; i < borne1; i++)
-        merge_update_interfaces(temp_spe_left, temp_comp_left, specialite_interfaces, competences_interfaces, i, debut + i);
+        merge_update_interfaces(temp_spe_left[i], temp_comp_left[i], specialite_interfaces[debut + i], competences_interfaces[debut + i]);
 
     int i = 0;
     int j = 0;
@@ -533,36 +551,40 @@ void merge_interfaces(int debut, int middle, int fin)
 
     while(i < borne1 && j < borne2)
     {
-        if(poids_interfaces(temp_spe_left, temp_comp_left, i) <= poids_interfaces(temp_spe_right, temp_comp_right, j))
+        //Tri en fonction du poids retourné par la fonction (un poids fort indique une interface en tête de liste)
+        if(poids_interfaces(temp_spe_left[i], temp_comp_left[i]) <= poids_interfaces(temp_spe_right[j], temp_comp_right[j]))
         {
-            merge_update_interfaces(specialite_interfaces, competences_interfaces, temp_spe_right, temp_comp_right, k, j);
+            merge_update_interfaces(specialite_interfaces[k], competences_interfaces[k], temp_spe_right[j], temp_comp_right[j]);
             j++;
 
         }
         else
         {
-            merge_update_interfaces(specialite_interfaces, competences_interfaces, temp_spe_left, temp_comp_left, k, i);
+            merge_update_interfaces(specialite_interfaces[k], competences_interfaces[k], temp_spe_left[i], temp_comp_left[i]);
             i++;
         }
         k++;
     }
     while(i < borne1)
     {
-        merge_update_interfaces(specialite_interfaces, competences_interfaces, temp_spe_left, temp_comp_left, k, i);
+        merge_update_interfaces(specialite_interfaces[k], competences_interfaces[k], temp_spe_left[i], temp_comp_left[i]);
         k++;
         i++;
     }
 
     while(j < borne2)
     {
-        merge_update_interfaces(specialite_interfaces, competences_interfaces, temp_spe_right, temp_comp_right, k, j);
+        merge_update_interfaces(specialite_interfaces[k], competences_interfaces[k], temp_spe_right[j], temp_comp_right[j]);
         k++;
         j++;
     }
 
 }
+
+//Merge sort classique
 void tri_interfaces(int debut, int fin)
 {
+
     if(debut < fin)
     {
         int middle = debut + (fin - debut) / 2;
@@ -573,12 +595,169 @@ void tri_interfaces(int debut, int fin)
     }
 }
 
+void init_agenda()
+{
+    for(int i = 0; i < NBR_INTERFACES; i++)
+    {
+        for(int j = 0; j < 6; j++)
+        {
+            for(int p = 0; p < 13; p++)
+                agenda_interfaces[i][j][p] = 0;
+        }
+    }
+}
+
+//Vérifie si l'interface à l'index index peut prendre le créneau passé en paramètre
+//Elle le peut si :
+//- Elle a la compétence requise (codage LPC ou langage des signes)
+//- Elle n'a pas déjà de formation prévu à cette horaire
+//- L'amplitude de sa journée ne dépasse pas 12h
+//- Son nombre d'heures hebdomadaire ne dépasse pas 35h
+//- Son nombre d'heures quotidiennes ne dépasse pas 8h
+int check_compatibility(int index, int *creneau, int temps_creneau)
+{
+    //Verification compatibilité compétence
+    if(creneau[2] == 0 && competences_interfaces[index][0] == 0)
+        return -1;
+
+    int jour_sem = creneau[3] - 1; //Jour de la formation passée en paramètre
+    int map = creneau[4] - 6; //Le tableau agenda allant de 0 à 13, il faut mapper les heures de 6 à 19 pour qu'elles correspondent aux index du tableau
+
+    //Verification de la compatibilité d'emploi du temps
+    for(int i = 0; i < temps_creneau; i++)
+    {
+        if(agenda_interfaces[index][jour_sem][map + i] == 1) //Si il y a déjà un 1 dans le tableau agenda, alors cela signifie que l'heure est déjà prise
+            return -1;
+    }
+
+
+    //On insere le nouveau creneau dans l'agenda de l'interface afin d'ensuite effectuer les tests de vérification
+    int temp[13];
+    for(int i = 0; i < 13; i++)
+        temp[i] = agenda_interfaces[index][jour_sem][i];
+    for(int i = 0; i < temps_creneau; i++)
+        agenda_interfaces[index][jour_sem][map + i] = 1;
+
+    //Verification de l'amplitude de la journée (12h maximum entre la première et dernière heure de travail)
+    int p = 0;
+    int premiere_heure = 0;
+    while(p < 13 && agenda_interfaces[index][jour_sem][p] == 0)
+        p++;
+
+    if(p < 13)
+    {
+        premiere_heure = agenda_interfaces[index][jour_sem][p];
+        int derniere_heure = 0;
+        int p = 12;
+        while(agenda_interfaces[index][jour_sem][p] == 0)
+            p--;
+        if(derniere_heure - premiere_heure > 12)
+        {
+            for(int i = 0; i < 13; i++)
+            {
+                agenda_interfaces[index][jour_sem][i] = temp[i];
+
+            }
+            return -1;
+        }
+
+    }
+
+    //Verification du nombre d'heures de la journée
+    int heures_journalieres = 0;
+    for(int i = 0; i < 13; i++)
+        heures_journalieres += agenda_interfaces[index][jour_sem][i];
+
+    if(heures_journalieres > 8)
+    {
+        for(int i = 0; i < 13; i++)
+        {
+            agenda_interfaces[index][jour_sem][i] = temp[i];
+
+        }
+        return -1;
+    }
+
+    //Verification heures hebdomadaires
+    int heures_hebdomadaires = 0;
+    for(int i = 0; i < 6; i++)
+    {
+        for(int j = 0; j < 13; j++)
+        {
+            heures_hebdomadaires += agenda_interfaces[index][i][j];
+        }
+    }
+    if(heures_hebdomadaires > 35)
+    {
+        for(int i = 0; i < 13; i++)
+        {
+            agenda_interfaces[index][jour_sem][i] = temp[i];
+
+        }
+        return -1;
+    }
+
+    for(int i = 0; i < temps_creneau; i++)
+        {
+            agenda_interfaces[index][jour_sem][creneau[4] - 6 + i] = 1;
+        }
+
+    return 0;
+}
+
+void print_solution()
+{
+    for(int i = 0; i < NBR_INTERFACES; i++)
+    {
+        printf("\nInterface %d :\n", i);
+        for(int j = 0; j < 6; j++)
+        {
+            printf("Jour %d : ", j + 1);
+            for(int p = 0; p < 13; p++)
+            {
+                printf("%d ", agenda_interfaces[i][j][p]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+    }
+}
+
 void find_init_solution()
 {
     tri_horaires_formation(0, NBR_FORMATIONS);
-    tri_interfaces(0, NBR_INTERFACES);
-    //print_formation();
-    //print_interfaces();
+    tri_interfaces(0, NBR_FORMATIONS);
+
+    //Affichage tableau formation et interfaces pour débuggage
+    printf("\n*********************FORMATIONS****************\n");
+    print_formation();
+    printf("\n**********************INTERFACES************************\n");
+    print_interfaces();
+
+    //Initialisation de l'agenda à 0
+    init_agenda();
+
+    //On cherche une solution en faisant rentrer le plus de formations dans les premieres interfaces
+    for(int i = 0; i < NBR_FORMATIONS; i++)
+    {
+        int temps_creneau = formation[i][5] - formation[i][4]; //Durée d'une formation
+
+        //On recherche la première interface pouvant prendre la formation, si on arrive au bout du tableau des interfaces sans avoir trouvé
+        //d'interface valide, alors l'algorithme n'est pas capable de trouver de solution initiale valide
+        int p = 0;
+        while(check_compatibility(p, formation[i], temps_creneau) == -1 && p < NBR_FORMATIONS)
+            p++;
+
+        if(p >= NBR_FORMATIONS)
+        {
+            printf("Impossible d'assigner un des creneaux");
+            exit(EXIT_FAILURE);
+        }
+
+    }
+
+    printf("\n*****************************AGENDA*************************\n");
+    print_solution();
 
 
 }
