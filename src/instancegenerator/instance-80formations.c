@@ -221,7 +221,7 @@ int specialite_interfaces[NBR_INTERFACES][NBR_SPECIALITES]={
 };
 
 /* coordonnées des centres de formation, des interfaces et des apprenants */
-float coord[NBR_NODES][2]={
+double coord[NBR_NODES][2]={
 
     /* Les interfaces se rendent du centre SESSAD à l'école de formation */
     {123,11}, /* centre 0 */
@@ -759,11 +759,11 @@ int check_compatibility(int index, int *creneau, int temps_creneau)
     return 0;
 }
 
-double computeDistance(int xa, int ya, int xb, int yb)
+double computeDistance(double xa, double ya, double xb, double yb)
 {
     double distance = 0;
     distance = pow(xa-xb, 2) + pow(ya-yb, 2);
-    distance = sqrtf(distance);
+    distance = sqrt(distance);
     return distance;
 }
 
@@ -791,6 +791,7 @@ double computeEmployeeDistance(int i)
             }
             // rajouter le retour au centre 0
             distance += computeDistance(coord[0][0], coord[0][1], coord[formation[formation_interface[i].intArray[index]][1]+1][0], coord[formation[formation_interface[i].intArray[index]][1]+1][1]);
+
         }
     }
     return distance;
@@ -809,16 +810,16 @@ double computeAvgDistance()
 
 double computeStandardError(double avg)
 {
-    float total = 0;
+    double total = 0;
     for (int i=0; i < NBR_INTERFACES; i++)
     {
         double current = 0, temp = 0;
         current = computeEmployeeDistance(i);
         temp = current - avg;
-        total += powf(temp, 2);
+        total += pow(temp, 2);
     }
     total = total / NBR_INTERFACES;
-    total = sqrtf(total);
+    total = sqrt(total);
     return total;
 }
 
@@ -854,7 +855,7 @@ void print_solution()
         {
             printf("%d\n", formation_interface[i].intArray[j]);
         }
-        printf("distance parcourue : %d", computeEmployeeDistance(i));
+        printf("distance parcourue : %f", computeEmployeeDistance(i));
     }
 }
 
@@ -870,7 +871,6 @@ void find_init_solution()
     print_formation();
     printf("\n**********************INTERFACES************************\n");
     print_interfaces();
-
     //Initialisation de l'agenda à 0
     init_agenda();
 
