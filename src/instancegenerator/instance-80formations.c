@@ -412,6 +412,60 @@ int formation[NBR_FORMATION][6]={
 //- Le troisième index correspond à l'heure du jour (allant de 0 à 13, représentant les heures de 6 à 19)
 int agenda_interfaces[NBR_INTERFACES][6][13];
 
+typedef struct {
+    int* intArray;
+    int size;
+    int capacity;
+} IntegerArray;
+
+//Tableau associant à chaque formation l'interface correspondante
+IntegerArray formation_interface[NBR_INTERFACES];
+
+IntegerArray initIntArray(int initSize)
+{
+    IntegerArray array;
+    array.intArray = (int*)malloc(sizeof(int) * initSize);
+    array.capacity = initSize;
+    array.size = 0;
+    return array;
+}
+
+void addElementIntArray(IntegerArray* a, int value)
+{
+    if(a != NULL)
+    {
+        if(a->size + 1 > a->capacity)
+        {
+            a->intArray = realloc(a->intArray, (a->capacity*=2) * sizeof(int));
+        }
+        a->size++;
+        a->intArray[a->size-1] = value;
+    }
+}
+
+void removeElementIntArray(IntegerArray* a)
+{
+    if(a->size>0)
+    {
+        a->intArray[a->size - 1] = 0;
+        a->size--;
+        a->intArray = realloc(a->intArray, a->size * sizeof(int));
+    }
+    else
+    {
+        a->intArray = NULL;
+        free(a->intArray);
+    }
+}
+
+void cleanIntArray(IntegerArray* a)
+{
+    while(a->intArray != NULL)
+    {
+        removeElementIntArray(&*a);
+    }
+}
+
 //Permet de changer la ligne d'un tableau à 6 dimension grâce à une autre ligne de tableau
 void fill_array(int *array_to_fill, int *filler)
 {
@@ -719,12 +773,19 @@ void print_solution()
             }
             printf("\n");
         }
-        printf("\n");
+        printf("\nFormations prises en charge : ");
+        for(int j = 0; j < formation_interface[i].size; j++)
+        {
+            printf("%d\n", formation_interface[i].intArray[j]);
+        }
+
     }
 }
 
 void find_init_solution()
 {
+
+
     tri_horaires_formation(0, NBR_FORMATIONS);
     tri_interfaces(0, NBR_FORMATIONS);
 
@@ -736,6 +797,10 @@ void find_init_solution()
 
     //Initialisation de l'agenda à 0
     init_agenda();
+
+
+    for(int i = 0; i < NBR_INTERFACES; i++)
+        formation_interface[i] = initIntArray(1);
 
     //On cherche une solution en faisant rentrer le plus de formations dans les premieres interfaces
     for(int i = 0; i < NBR_FORMATIONS; i++)
@@ -753,6 +818,8 @@ void find_init_solution()
             printf("Impossible d'assigner un des creneaux");
             exit(EXIT_FAILURE);
         }
+
+        addElementIntArray(&formation_interface[p], i);
 
     }
 
