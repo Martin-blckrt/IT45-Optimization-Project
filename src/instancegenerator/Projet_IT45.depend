@@ -1,8 +1,0 @@
-# depslib dependency file v1.0
-1621453929 source:c:\users\antoine\documents\informatique\br02\it45\projet\instancegenerator-v02\src\instancegenerator\instance-80formations.c
-	<stdio.h>
-
-1621691538 source:c:\users\antoine\documents\informatique\br02\it45\projet\src\instancegenerator\instance-80formations.c
-	<stdio.h>
-	<stdlib.h>
-
