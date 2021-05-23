@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "solutions.h"
-#include "instancegenerator/constants.h"
 
 
 

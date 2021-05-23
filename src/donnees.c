@@ -1,4 +1,4 @@
-#include "instancegenerator/constants.h"
+#include "constants.h"
                   
                   
 /* code des compétence en langage des signes et en codage LPC */

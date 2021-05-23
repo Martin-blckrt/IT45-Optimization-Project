@@ -1,4 +1,4 @@
-#include "instancegenerator/constants.h"
+#include "constants.h"
 #include "dintegerarray.h"
 
 typedef struct 
