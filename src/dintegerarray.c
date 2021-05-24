@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include "dintegerarray.h"
 
-
 void init_intarray(IntegerArray* array, int initSize)
 {
     array->int_array = (int*)malloc(sizeof(int) * initSize);

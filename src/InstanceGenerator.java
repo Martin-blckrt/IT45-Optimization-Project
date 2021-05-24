@@ -36,12 +36,14 @@ public class InstanceGenerator {
         "COMPETENCE_SIGNES",
         "COMPETENCE_CODAGE"};
 
-    public static int NBR_CENTRES_FORMATION = 3; 
+    public static int NBR_CENTRES_FORMATION = 5; 
     public static int NBR_SPECIALITES = NBR_CENTRES_FORMATION;
     public static String NOMS_SPECIALITES[] = {
         "SPECIALITE_MENUISERIE",
         "SPECIALITE_ELECTRICITE",
-        "SPECIALITE_MECANIQUE"};
+        "SPECIALITE_MECANIQUE",
+        "SPECIALITE_INFORMATIQUE",
+        "SPECIALITE_CUISINE"};
 
     public static String JOURS_SEMAINE[] = {
         "LUNDI",
@@ -67,7 +69,7 @@ public class InstanceGenerator {
             writeSpecialiteInterfaces();
             writeCoord();
             writeFormation();
-
+	    writeGlobalVariables();
             textFileOutput.close();
             textFileOutput2.close();
         } catch (IOException ex) {
@@ -88,7 +90,8 @@ public class InstanceGenerator {
     //#define COMPETENCE_CODAGE      1 
     private void writeHeader() {
         try {
-            textFileOutput.write("#include <" + FILENAMEREFS + ">\n");
+            textFileOutput.write("#include \"" + FILENAMEREFS + "\"\n");
+            textFileOutput.write("#include \"interface.h\"\n");
             textFileOutput.write("                  \n");
             textFileOutput2.write("#define NBR_INTERFACES        " + NBR_INTERFACES + "\n");
             textFileOutput2.write("#define NBR_APPRENANTS        " + NBR_APPRENANTS + "\n");
@@ -348,6 +351,16 @@ public class InstanceGenerator {
         } catch (IOException ex) {
             Logger.getLogger(InstanceGenerator.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    private void writeGlobalVariables()
+    {
+    	try
+    	{
+    		textFileOutput.write("//Variables globales utilisees dans le reste du programme\ndouble distances[NBR_SPECIALITES + 1][NBR_SPECIALITES + 1];\nInterface infos_interface[NBR_INTERFACES];\n");
+    } catch (IOException ex) {
+    	Logger.getLogger(InstanceGenerator.class.getName()).log(Level.SEVERE, null, ex);
+    }
     }
 
 
