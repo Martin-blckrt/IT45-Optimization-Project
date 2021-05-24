@@ -8,6 +8,7 @@ extern int specialite_interfaces[NBR_INTERFACES][2];
 extern int competences_interfaces[NBR_INTERFACES][NBR_SPECIALITES];
 extern int formation[NBR_FORMATIONS][6];
 extern float coord[NBR_NODES][2];
+double distances[NBR_SPECIALITES + 1][NBR_SPECIALITES + 1];
 
 Interface infos_interface[NBR_INTERFACES];
 
@@ -66,9 +67,21 @@ int poids_interface(const Interface *interface)
 
 }
 
+void init_distance_matrix()
+{
+    for (int i = 0; i < NBR_SPECIALITES + 1; i++) {
+        for (int j = 0; j < NBR_SPECIALITES + 1; j++) {
+            if (i == j)
+                distances[i][j] = 0;
+            else
+                distances[i][j] = compute_distance(coord[i][0], coord[i][1], coord[j][0], coord[j][1]);
+        }
+    }
+}
+
 void find_init_solution()
 {
-
+    init_distance_matrix();
     init_tableau_interfaces();
 
     qsort(formation, NBR_FORMATIONS, sizeof(formation[0]), compare_formations);
@@ -230,18 +243,16 @@ double compute_employee_distance(int i)
         for (int index = 0; index < nb_formations; index++)
         {
             // rajouter la distance du centre 0 au centre de formation
-            distance += compute_distance(coord[0][0], coord[0][1], coord[formation[formation_interface[index]][1]+1][0], coord[formation[formation_interface[index]][1]+1][1]);
-
+            distance += distances[0][formation[formation_interface[index]][1]+1];
             // tant qu'il reste des formations ce jour la
             while (index != nb_formations-1 && formation[formation_interface[index]][3] == formation[formation_interface[index+1]][3])
             {
                 // rajouter la distance entre les centres de formation
-                distance += compute_distance(coord[formation[formation_interface[index]][1]+1][0], coord[formation[formation_interface[index]][1]+1][1], coord[formation[formation_interface[index+1]][1]+1][0], coord[formation[formation_interface[index+1]][1]+1][1]);
+                distance += distances[formation[formation_interface[index]][1]+1][formation[formation_interface[index+1]][1]+1];
                 index += 1;
             }
             // rajouter le retour au centre 0
-            distance += compute_distance(coord[0][0], coord[0][1], coord[formation[formation_interface[index]][1]+1][0], coord[formation[formation_interface[index]][1]+1][1]);
-
+            distance += distances[0][formation[formation_interface[index]][1]+1];
         }
     }
     return distance;
@@ -311,8 +322,18 @@ double compute_min_z()
     return total;
 }
 
-
-
+void print_distances()
+{
+    for(int i = 0; i < NBR_SPECIALITES + 1; i++)
+    {
+        printf("Depart %d : \n", i);
+        for(int j = 0; j < NBR_SPECIALITES + 1; j++)
+        {
+            printf("Arrivee %d : %f\n", j, distances[i][j]);
+        }
+        printf("\n");
+    }
+}
 
 void print_formation()
 {
