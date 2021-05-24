@@ -12,7 +12,7 @@ typedef struct
 	int agenda[6][13];
 	
 	//L'agenda seul ne permet pas d'identifier les apprenants suivis par l'interface, ce tableau dynamique s'en charge 
-	IntegerArray formation;
+	IntegerArray formation[6];
 	
 } Interface;
 

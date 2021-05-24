@@ -6,7 +6,7 @@ typedef struct {
 } IntegerArray;
 
 
-IntegerArray init_intarray(int);
+void init_intarray(IntegerArray*, int);
 
 void add_element_intarray(IntegerArray*, int);
 

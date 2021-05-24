@@ -4,12 +4,50 @@
 #include "solutions.h"
 
 
-extern int specialite_interfaces[NBR_INTERFACES][2];
-extern int competences_interfaces[NBR_INTERFACES][NBR_SPECIALITES];
+extern int specialite_interfaces[NBR_INTERFACES][NBR_SPECIALITES];
+extern int competences_interfaces[NBR_INTERFACES][2];
 extern int formation[NBR_FORMATIONS][6];
 extern float coord[NBR_NODES][2];
 
+double distances[NBR_SPECIALITES + 1][NBR_SPECIALITES + 1];
+
 Interface infos_interface[NBR_INTERFACES];
+
+void print_distances()
+{
+	for(int i = 0; i < NBR_SPECIALITES + 1; i++)
+	{
+		printf("Depart %d : \n", i);
+		for(int j = 0; j < NBR_SPECIALITES + 1; j++)
+		{
+			printf("Arrivee %d : %f\n", j, distances[i][j]);
+		}
+		printf("\n");
+	}
+}
+
+void init_distance_matrix()
+{
+	for(int i = 0; i < NBR_SPECIALITES + 1; i++)
+	{
+		for(int j = 0; j < NBR_SPECIALITES + 1;j++)
+		{
+			if(i == j)
+				distances[i][j] = 0;
+			else
+				distances[i][j] = compute_distance(coord[i][0], coord[i][1], coord[j][0], coord[j][1]);
+		}
+	}
+	print_distances();
+}
+
+double compute_distance(double xa, double ya, double xb, double yb)
+{
+    double distance = 0;
+    distance = pow(xa-xb, 2) + pow(ya-yb, 2);
+    distance = sqrt(distance);
+    return distance;
+}
 
 int compare_formations(const void *n1, const void *n2)
 {
@@ -35,8 +73,20 @@ int compare_interfaces(const void *n1, const void *n2)
 		return 1;
 }
 
+int compare_agenda(const void *n1, const void *n2)
+{
+	const int *a = (const int*)n1;
+	const int *b = (const int*)n2;
+	
+	if(formation[*a][4] < formation[*b][4])
+		return -1;
+	else
+		return 1;
+}
+
 void init_tableau_interfaces()
 {
+
 	for(int i = 0; i < NBR_INTERFACES; i++)
 	{
 		for(int j = 0; j < 2; j++)
@@ -45,11 +95,12 @@ void init_tableau_interfaces()
 			infos_interface[i].specialite[j] = specialite_interfaces[i][j];
 		for(int j = 0; j < 6; j++)
 		{
+			init_intarray(&(infos_interface[i].formation[j]), 1);
 			for(int p = 0; p < 13; p++)
 				infos_interface[i].agenda[j][p] = 0;
 		}
+	
 		
-		infos_interface[i].formation = init_intarray(1);
 	}
 }
 
@@ -68,6 +119,7 @@ int poids_interface(const Interface *interface)
 
 void find_init_solution()
 {
+    init_distance_matrix();
 
     init_tableau_interfaces();
 
@@ -83,7 +135,7 @@ void find_init_solution()
     for(int i = 0; i < NBR_FORMATIONS; i++)
     {
         int temps_creneau = formation[i][5] - formation[i][4]; //Durée d'une formation
-
+	int jour = formation[i][3] - 1;
         //On recherche la première interface pouvant prendre la formation, si on arrive au bout du tableau des interfaces sans avoir trouvé
         //d'interface valide, alors l'algorithme n'est pas capable de trouver de solution initiale valide
         int p = 0;
@@ -96,9 +148,17 @@ void find_init_solution()
             exit(EXIT_FAILURE);
         }
 
-        add_element_intarray(&(infos_interface[p].formation), i);
+        add_element_intarray(&(infos_interface[p].formation[jour]), formation[i][0]);
 
     }
+    
+    for(int p = 0; p < NBR_INTERFACES; p++)
+    {
+	    for(int i = 0; i < 6; i++)
+	    {
+	    	qsort(infos_interface[p].formation[i].int_array, infos_interface[p].formation[i].size, sizeof(int), compare_agenda);
+	    }
+     }
 
     printf("\n*****************************AGENDA*************************\n");
     print_solution();
@@ -122,8 +182,7 @@ int check_compatibility(Interface *interface, int *creneau, int temps_creneau)
 
     int jour_sem = creneau[3] - 1; //Jour de la formation passée en paramètre
     int map = creneau[4] - 6; //Le tableau agenda allant de 0 à 13, il faut mapper les heures de 6 à 19 pour qu'elles correspondent aux index du tableau
-	
-	
+
     //Verification de la compatibilité d'emploi du temps
     for(int i = 0; i < temps_creneau; i++)
     {
@@ -142,9 +201,10 @@ int check_compatibility(Interface *interface, int *creneau, int temps_creneau)
     //Verification de l'amplitude de la journée (12h maximum entre la première et dernière heure de travail)
     int p = 0;
     int premiere_heure = 0;
+    
     while(p < 13 && interface->agenda[jour_sem][p] == 0)
-        p++;
-
+    	p++;
+    	
     if(p < 13)
     {
         premiere_heure = interface->agenda[jour_sem][p];
@@ -206,22 +266,29 @@ int check_compatibility(Interface *interface, int *creneau, int temps_creneau)
     return 0;
 }
 
-double compute_distance(double xa, double ya, double xb, double yb)
-{
-    double distance = 0;
-    distance = pow(xa-xb, 2) + pow(ya-yb, 2);
-    distance = sqrt(distance);
-    return distance;
-}
+
 
 
 double compute_employee_distance(int i)
 {
     Interface interface = infos_interface[i];
-    int* formation_interface = interface.formation.int_array;
-    int nb_formations = interface.formation.size;
+    IntegerArray* jour_formation = interface.formation;
     double distance = 0;
-    if (nb_formations == 0)
+    for(int i = 0; i < 6; i++)
+    {
+    	if(jour_formation[i].size != 0)
+    	{
+    		
+    		distance += distances[0][formation[jour_formation[i].int_array[0]][1]];
+    		int j = 0;
+    		for(j = 0; j < jour_formation[i].size - 2; j++)
+    			distance += distances[j][formation[jour_formation[i].int_array[j+1]][1]];
+    			
+    		distance += distances[formation[jour_formation[i].int_array[j]][1]][0];
+    	}
+    }
+    
+    /*if (nb_formations == 0)
     {
         return 0;
     }
@@ -243,10 +310,10 @@ double compute_employee_distance(int i)
             distance += compute_distance(coord[0][0], coord[0][1], coord[formation[formation_interface[index]][1]+1][0], coord[formation[formation_interface[index]][1]+1][1]);
 
         }
-    }
+    }*/
     return distance;
 }
-
+/*
 double compute_avg_distance()
 {
     double total = 0;
@@ -309,10 +376,7 @@ double compute_min_z()
     penalty = compute_penalties();
     total = 0.5 * (avg + std) + 0.5 * fcorr * penalty;
     return total;
-}
-
-
-
+}*/
 
 void print_formation()
 {
@@ -344,6 +408,7 @@ void print_interfaces()
 }
 
 
+			
 void print_solution()
 {
     for(int i = 0; i < NBR_INTERFACES; i++)
@@ -356,14 +421,12 @@ void print_solution()
             {
                 printf("%d ", infos_interface[i].agenda[j][p]);
             }
+            for(int p = 0; p < infos_interface[i].formation[j].size; p++)
+            	printf(" %d", infos_interface[i].formation[j].int_array[p]);
             printf("\n");
         }
-        printf("\nFormations prises en charge : ");
-        for(int j = 0; j < infos_interface[i].formation.size; j++)
-        {
-            printf("%d\n", infos_interface[i].formation.int_array[j]);
-        }
+
         printf("distance parcourue : %f", compute_employee_distance(i));
     }
-    printf("\nz is  : %f\n", compute_min_z());
+    //printf("\nz is  : %f\n", compute_min_z());
 }

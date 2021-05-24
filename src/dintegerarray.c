@@ -3,13 +3,11 @@
 #include "dintegerarray.h"
 
 
-IntegerArray init_intarray(int initSize)
+void init_intarray(IntegerArray* array, int initSize)
 {
-    IntegerArray array;
-    array.int_array = (int*)malloc(sizeof(int) * initSize);
-    array.capacity = initSize;
-    array.size = 0;
-    return array;
+    array->int_array = (int*)malloc(sizeof(int) * initSize);
+    array->capacity = initSize;
+    array->size = 0;
 }
 
 void add_element_intarray(IntegerArray* a, int value)

@@ -77,7 +77,6 @@ float coord[NBR_NODES][2]={
 };
                   
                   
-                  
 /* formation : id formation, specialite ou centre de formation, competence, horaire debut formation, horaire fin formation */
 int formation[NBR_FORMATIONS][6]={
    {0,SPECIALITE_ELECTRICITE,COMPETENCE_CODAGE,MERCREDI,9,12},
