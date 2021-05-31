@@ -15,7 +15,7 @@ int get_champs_formation(int, int);
 
 void solve();
 
-void find_init_solution();
+void find_init_solution(Solution *);
 
 void improve_solution(Solution *);
 

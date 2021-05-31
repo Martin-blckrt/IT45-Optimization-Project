@@ -10,8 +10,6 @@ extern int formation[NBR_FORMATIONS][6];
 extern float coord[NBR_NODES][2];
 extern double distances[NBR_SPECIALITES + 1][NBR_SPECIALITES + 1];
 
-Solution solution_initiale;
-
 int get_champs_formation(int index_formation, int index_champ)
 {
 	return formation[index_formation][index_champ];
@@ -42,25 +40,27 @@ double compute_distance(double xa, double ya, double xb, double yb)
 
 void solve()
 {
-	find_init_solution();
+	Solution solution_initiale;
+
+	find_init_solution(&solution_initiale);
 	improve_solution(&solution_initiale);
 }
-void find_init_solution()
+void find_init_solution(Solution *solution_initiale)
 {
     init_distance_matrix();
-    init_tableau_interfaces(solution_initiale.interface);
+    init_tableau_interfaces(solution_initiale->interface);
 
     qsort(formation, NBR_FORMATIONS, sizeof(formation[0]), compare_formations);
-    qsort(solution_initiale.interface, NBR_INTERFACES, sizeof(solution_initiale.interface[0]), compare_interfaces);
+    qsort(solution_initiale->interface, NBR_INTERFACES, sizeof(solution_initiale->interface[0]), compare_interfaces);
     //Affichage tableau formation et interfaces pour débuggage    
     
     printf("\n*********************FORMATIONS****************\n");
     print_formation();
     
-    remplir_agendas(solution_initiale.interface);
-    compute_distance_interfaces(solution_initiale.interface);
-    update_solution(&solution_initiale);
-    print_solution(solution_initiale);
+    remplir_agendas(solution_initiale->interface);
+    compute_distance_interfaces(solution_initiale->interface);
+    update_solution(solution_initiale);
+    print_solution(*solution_initiale);
      
 
 }
@@ -102,8 +102,6 @@ void improve_standard_error(Solution* sol)
 		int temps_creneau = creneau[5] - creneau[4];
 		while(check_compatibility(&(sol->interface[interface_receveuse_index]), creneau, temps_creneau) == -1 && sol->interface[interface_receveuse_index].distance_totale < sol->avg_distance)
 			interface_receveuse_index--;
-		printf("jour : %d, index : %d, interface_receveuse : %d\n", jour, index, interface_receveuse_index);
-		fflush(stdout);
 		
 		//Mise à jour du tableau agenda et IntegerArray correspondants
 		add_element_intarray(&(sol->interface[interface_receveuse_index].formation[jour]), sol->interface[0].formation[jour].int_array[index]);
@@ -121,7 +119,7 @@ void improve_standard_error(Solution* sol)
 	
 	//Mise à jour de la solution
 	update_solution(sol);
-	print_solution(*sol);
+	//print_solution(*sol);
 }
 
 
@@ -227,7 +225,7 @@ void print_formation()
 void print_solution(Solution solution)
 {
     printf("\n**********************INTERFACES************************\n");
-    print_interfaces(solution_initiale.interface);
+    print_interfaces(solution.interface);
     printf("\n*****************************AGENDA*************************\n");
     for(int i = 0; i < NBR_INTERFACES; i++)
     {
