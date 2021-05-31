@@ -67,16 +67,61 @@ void find_init_solution()
 
 void improve_solution(Solution *sol)
 {
-	//Creer une copie de la solution sol
+	
+	//Creer deux copies de la solution sol
+	
+	//Ajouter les deux copies à l'arbre
 	
 	improve_standard_error(sol);
 	//improve_penalties
 	update_solution(sol);
 }
 
+/*Fonction permettant d'améliorer l'écart type des distances parcourues par les interfaces. 
+Pour ce faire, on tri les interfaces en fonction de leur distance parcourue, et on supprime des créneaux de l'interface ayant le plus de distance parcourue pour les ajouter dans les interfaces ayant
+le moins de distance parcourue, jusqu'à arriver à la valeure moyenne des distances parcourues*/
+
 void improve_standard_error(Solution* sol)
 {
-
+	int index = 0;
+	int jour = 0;
+	int interface_receveuse_index = NBR_INTERFACES - 1;
+	
+	//Boucle tant que l'interface est au dessus du seuil moyen
+	while(sol->interface[0].distance_totale > sol->avg_distance)
+	{
+		//Si l'interface n'a déjà pas de formation ce jour-ci, alors on passe au jour suivant
+		if(sol->interface[0].formation[jour].size == 0)
+		{
+			jour++;
+			index = 0;
+		}
+		
+		//Vérification de la compatibilité du créneau avec l'interface recevante, si incompatibilité, on prend la 2e interface avec le moins de distance parcourue
+		int *creneau = formation[sol->interface[0].formation[jour].int_array[index]];
+		int temps_creneau = creneau[5] - creneau[4];
+		while(check_compatibility(&(sol->interface[interface_receveuse_index]), creneau, temps_creneau) == -1 && sol->interface[interface_receveuse_index].distance_totale < sol->avg_distance)
+			interface_receveuse_index--;
+		printf("jour : %d, index : %d, interface_receveuse : %d\n", jour, index, interface_receveuse_index);
+		fflush(stdout);
+		
+		//Mise à jour du tableau agenda et IntegerArray correspondants
+		add_element_intarray(&(sol->interface[interface_receveuse_index].formation[jour]), sol->interface[0].formation[jour].int_array[index]);
+		remove_element_intarray(&(sol->interface[0].formation[jour]), index);
+		remove_creneau_agenda(sol->interface[0].agenda[jour], creneau, temps_creneau);
+		
+		//Mise à jour des distances parcourues
+		sol->interface[interface_receveuse_index].distance_totale = compute_employee_distance(sol->interface[interface_receveuse_index]);
+		sol->interface[0].distance_totale = compute_employee_distance(sol->interface[0]);
+		
+		//On passe à la formation suivante
+		index++;
+		
+	}
+	
+	//Mise à jour de la solution
+	update_solution(sol);
+	print_solution(*sol);
 }
 
 
@@ -181,7 +226,7 @@ void print_formation()
 			
 void print_solution(Solution solution)
 {
-	printf("\n**********************INTERFACES************************\n");
+    printf("\n**********************INTERFACES************************\n");
     print_interfaces(solution_initiale.interface);
     printf("\n*****************************AGENDA*************************\n");
     for(int i = 0; i < NBR_INTERFACES; i++)

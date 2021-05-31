@@ -22,11 +22,16 @@ void add_element_intarray(IntegerArray* a, int value)
     }
 }
 
-void remove_element_intarray(IntegerArray* a)
+void remove_element_intarray(IntegerArray* a, int value)
 {
     if(a->size>0)
     {
-        a->int_array[a->size - 1] = 0;
+    	int i = 0;
+    	while(a->int_array[i] != value)
+    		i++;
+    	for(i = i; i < a->size - 1; i++)
+    		a->int_array[i] = a->int_array[i+1];
+        //a->int_array[a->size - 1] = 0;
         a->size--;
         a->int_array = realloc(a->int_array, a->size * sizeof(int));
     }
@@ -41,6 +46,6 @@ void clean_intarray(IntegerArray* a)
 {
     while(a->int_array != NULL)
     {
-        remove_element_intarray(&*a);
+        remove_element_intarray(a, a->int_array[0]);
     }
 }

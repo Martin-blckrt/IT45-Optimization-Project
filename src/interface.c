@@ -40,6 +40,12 @@ void remplir_agendas(Interface *infos_interface)
     }
 }
 
+void remove_creneau_agenda(int *jour, int *creneau, int temps_creneau)
+{
+	int map = creneau[4] - 6;
+	for(int i = 0; i < temps_creneau; i++)
+		jour[map + i] = 0;
+}
 
 //Vérifie si l'interface interface peut prendre le créneau passé en paramètre
 //Elle le peut si :

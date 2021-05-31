@@ -28,6 +28,8 @@ void compute_distance_interfaces(Interface *);
 
 void remplir_agendas(Interface*);
 
+void remove_creneau_agenda(int *, int *, int);
+
 int check_compatibility(Interface *, int *, int);
 
 void init_tableau_interfaces(Interface*);
