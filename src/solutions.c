@@ -8,15 +8,15 @@
 
 extern int formation[NBR_FORMATIONS][6];
 extern float coord[NBR_NODES][2];
-double distances[NBR_SPECIALITES + 1][NBR_SPECIALITES + 1];
-Interface infos_interface[NBR_INTERFACES];
+extern double distances[NBR_SPECIALITES + 1][NBR_SPECIALITES + 1];
 
-
+Solution solution_initiale;
 
 int get_champs_formation(int index_formation, int index_champ)
 {
 	return formation[index_formation][index_champ];
 }
+
 void init_distance_matrix()
 {
 	for(int i = 0; i < NBR_SPECIALITES + 1; i++)
@@ -40,73 +40,74 @@ double compute_distance(double xa, double ya, double xb, double yb)
     return distance;
 }
 
+void solve()
+{
+	find_init_solution();
+	improve_solution(&solution_initiale);
+}
 void find_init_solution()
 {
     init_distance_matrix();
-    init_tableau_interfaces();
+    init_tableau_interfaces(solution_initiale.interface);
 
     qsort(formation, NBR_FORMATIONS, sizeof(formation[0]), compare_formations);
-    qsort(infos_interface, NBR_INTERFACES, sizeof(infos_interface[0]), compare_interfaces);
+    qsort(solution_initiale.interface, NBR_INTERFACES, sizeof(solution_initiale.interface[0]), compare_interfaces);
     //Affichage tableau formation et interfaces pour débuggage    
-    printf("\n**********************INTERFACES************************\n");
-    print_interfaces();
+    
     printf("\n*********************FORMATIONS****************\n");
     print_formation();
-    remplir_agendas();
-    printf("\n*****************************AGENDA*************************\n");
-    print_solution();
+    
+    remplir_agendas(solution_initiale.interface);
+    compute_distance_interfaces(solution_initiale.interface);
+    update_solution(&solution_initiale);
+    print_solution(solution_initiale);
      
 
 }
 
-
-
-double compute_employee_distance(int i)
+void improve_solution(Solution *sol)
 {
-    Interface interface = infos_interface[i];
-    IntegerArray* jour = interface.formation;
-    double distance = 0;
-    for(int k = 0; k < 6; k++)
-    {
-    	printf("Jour %d :\n", k+1);
-    	int *jour_formations = jour[k].int_array;
-    	if(jour[k].size != 0)
-    	{
-    		printf("SESSAD -> specialite %d : %f\n", get_champs_formation(jour_formations[0], 1), distances[0][get_champs_formation(jour_formations[0], 1) + 1]);
-    		distance += distances[0][get_champs_formation(jour_formations[0], 1) + 1];
-    		int j = 0;
-    		for(j = 0; j < jour[k].size - 1; j++)
-    		{
-    		printf("distance : specialite %d -> specialite %d : %f\n", get_champs_formation(jour_formations[j], 1), get_champs_formation(jour_formations[j+1], 1), distances[get_champs_formation(jour_formations[j], 1) + 1][get_champs_formation(jour_formations[j+1], 1) + 1]);
-    			distance += distances[get_champs_formation(jour_formations[j], 1) + 1][get_champs_formation(jour_formations[j+1], 1) + 1];
-    		}
-    		
-    		printf("distance specialite %d -> SESSAD : %f\n", get_champs_formation(jour_formations[j], 1),  distances[get_champs_formation(jour_formations[j], 1) + 1][0]);
-    		distance += distances[get_champs_formation(jour_formations[j], 1) + 1][0];
-    	}
-    }
-    
-    return distance;
+	//Creer une copie de la solution sol
+	
+	improve_standard_error(sol);
+	//improve_penalties
+	update_solution(sol);
 }
 
-double compute_avg_distance()
+void improve_standard_error(Solution* sol)
+{
+
+}
+
+
+void update_solution(Solution *sol)
+{
+	sol->avg_distance = compute_avg_distance(*sol);
+	sol->standard_error = compute_standard_error(*sol, sol->avg_distance);
+	sol->fcorr = compute_fcorr(sol->avg_distance);
+	sol->penalties = compute_penalties(*sol);
+	sol->z = compute_min_z(sol->avg_distance, sol->standard_error, sol->fcorr, sol->penalties);
+}
+
+
+double compute_avg_distance(Solution sol)
 {
     double total = 0;
     for (int i=0; i < NBR_INTERFACES; i++)
     {
-        total += compute_employee_distance(i);
+        total += sol.interface[i].distance_totale;
     }
     total = total / NBR_INTERFACES;
     return total;
 }
 
-double compute_standard_error(double avg)
+double compute_standard_error(Solution sol, double avg)
 {
     double total = 0;
     for (int i=0; i < NBR_INTERFACES; i++)
     {
         double current = 0, temp = 0;
-        current = compute_employee_distance(i);
+        current = sol.interface[i].distance_totale;
         temp = current - avg;
         total += pow(temp, 2);
     }
@@ -123,9 +124,10 @@ double compute_fcorr(double avg)
     return total;
 }
 
-int compute_penalties()
+int compute_penalties(Solution sol)
 {
     int total = 0;
+    Interface *infos_interface = sol.interface;
     for (int i=0; i < NBR_INTERFACES; i++)
     {
     	Interface interface = infos_interface[i];
@@ -145,16 +147,7 @@ int compute_penalties()
     return total;
 }
 
-double compute_min_z()
-{
-    double total = 0, avg = 0, std = 0, fcorr = 0, penalty = 0;
-    avg = compute_avg_distance();
-    std = compute_standard_error(avg);
-    fcorr = compute_fcorr(avg);
-    penalty = compute_penalties();
-    total = 0.5 * (avg + std) + 0.5 * fcorr * penalty;
-    return total;
-}
+double compute_min_z(double avg, double std, double fcorr, double penalty) {return 0.5 * (avg + std) + 0.5 * fcorr * penalty;}
 
 
 
@@ -186,8 +179,11 @@ void print_formation()
 }
 
 			
-void print_solution()
+void print_solution(Solution solution)
 {
+	printf("\n**********************INTERFACES************************\n");
+    print_interfaces(solution_initiale.interface);
+    printf("\n*****************************AGENDA*************************\n");
     for(int i = 0; i < NBR_INTERFACES; i++)
     {
         printf("\nInterface %d :\n", i);
@@ -196,16 +192,17 @@ void print_solution()
             printf("Jour %d : ", j + 1);
             for(int p = 0; p < 13; p++)
             {
-                printf("%d ", infos_interface[i].agenda[j][p]);
+                printf("%d ", solution.interface[i].agenda[j][p]);
             }
-            if(infos_interface[i].formation[j].size != 0)
+            if(solution.interface[i].formation[j].size != 0)
             	printf("Index formations : ");
-            for(int p = 0; p < infos_interface[i].formation[j].size; p++)
-            	printf(" %d", infos_interface[i].formation[j].int_array[p]);
+            for(int p = 0; p < solution.interface[i].formation[j].size; p++)
+            	printf(" %d", solution.interface[i].formation[j].int_array[p]);
             printf("\n");
         }
 
-        printf("distance parcourue : %f\n", compute_employee_distance(i));
+        printf("distance parcourue : %f\n", solution.interface[i].distance_totale);
     }
-    //printf("\nz is  : %f\n", compute_min_z());
+    printf("\n*****************************SOLUTION*************************\n");
+    printf("z is  : %f\navg distance : %f\nstandard error : %f\nfcorr : %f\npenalties : %d\n", solution.z, solution.avg_distance, solution.standard_error, solution.fcorr, solution.penalties);
 }

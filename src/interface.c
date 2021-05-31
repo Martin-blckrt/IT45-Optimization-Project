@@ -2,13 +2,14 @@
 #include <stdlib.h>
 #include "interface.h"
 #include "tri.h"
+#include "solutions.h"
 
 extern int specialite_interfaces[NBR_INTERFACES][NBR_SPECIALITES];
 extern int competences_interfaces[NBR_INTERFACES][2];
 extern int formation[NBR_FORMATIONS][6];
-extern Interface infos_interface[NBR_INTERFACES];
+extern double distances[NBR_SPECIALITES + 1][NBR_SPECIALITES + 1];
 
-void remplir_agendas()
+void remplir_agendas(Interface *infos_interface)
 {
 	//On cherche une solution en faisant rentrer le plus de formations dans les premieres interfaces
     for(int i = 0; i < NBR_FORMATIONS; i++)
@@ -40,7 +41,7 @@ void remplir_agendas()
 }
 
 
-//Vérifie si l'interface à l'index index peut prendre le créneau passé en paramètre
+//Vérifie si l'interface interface peut prendre le créneau passé en paramètre
 //Elle le peut si :
 //- Elle a la compétence requise (codage LPC ou langage des signes)
 //- Elle n'a pas déjà de formation prévu à cette horaire
@@ -140,7 +141,7 @@ int check_compatibility(Interface *interface, int *creneau, int temps_creneau)
     return 0;
 }
 
-void init_tableau_interfaces()
+void init_tableau_interfaces(Interface *infos_interface)
 {
 
 	for(int i = 0; i < NBR_INTERFACES; i++)
@@ -160,6 +161,39 @@ void init_tableau_interfaces()
 	}
 }
 
+double compute_employee_distance(Interface interface)
+{
+    IntegerArray* jour = interface.formation;
+    double distance = 0;
+    for(int k = 0; k < 6; k++)
+    {
+    	//printf("Jour %d :\n", k+1);
+    	int *jour_formations = jour[k].int_array;
+    	if(jour[k].size != 0)
+    	{
+    		//printf("SESSAD -> specialite %d : %f\n", get_champs_formation(jour_formations[0], 1), distances[0][get_champs_formation(jour_formations[0], 1) + 1]);
+    		distance += distances[0][get_champs_formation(jour_formations[0], 1) + 1];
+    		int j = 0;
+    		for(j = 0; j < jour[k].size - 1; j++)
+    		{
+    		//printf("distance : specialite %d -> specialite %d : %f\n", get_champs_formation(jour_formations[j], 1), get_champs_formation(jour_formations[j+1], 1), distances[get_champs_formation(jour_formations[j], 1) + 1][get_champs_formation(jour_formations[j+1], 1) + 1]);
+    			distance += distances[get_champs_formation(jour_formations[j], 1) + 1][get_champs_formation(jour_formations[j+1], 1) + 1];
+    		}
+    		
+    		//printf("distance specialite %d -> SESSAD : %f\n", get_champs_formation(jour_formations[j], 1),  distances[get_champs_formation(jour_formations[j], 1) + 1][0]);
+    		distance += distances[get_champs_formation(jour_formations[j], 1) + 1][0];
+    	}
+    }
+    
+    return distance;
+}
+
+void compute_distance_interfaces(Interface *interface)
+{
+	for(int i = 0; i < NBR_INTERFACES; i++)
+		interface[i].distance_totale = compute_employee_distance(interface[i]);
+}
+
 //Calcule le poids d'une interface afin d'avoir les interfaces ayant beaucoup de spécialités en haut de liste et les interfaces avec double compétences
 //en fin de liste
 int poids_interface(const Interface *interface)
@@ -173,7 +207,7 @@ int poids_interface(const Interface *interface)
 
 }
 
-void print_interfaces()
+void print_interfaces(Interface *infos_interface)
 {
     for(int i = 0; i < NBR_INTERFACES; i++)
     {

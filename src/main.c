@@ -5,7 +5,7 @@
 
 
 int main() {
-    find_init_solution();
+    solve();
     return 0 ;
 }
 

@@ -17,15 +17,22 @@ typedef struct
 	//L'agenda seul ne permet pas d'identifier les apprenants suivis par l'interface, ce tableau dynamique s'en charge 
 	IntegerArray formation[6];
 	
+	double distance_totale;
+	int nb_penalites;
+	
 }Interface;
 
-void remplir_agendas();
+double compute_employee_distance(Interface);
+
+void compute_distance_interfaces(Interface *);
+
+void remplir_agendas(Interface*);
 
 int check_compatibility(Interface *, int *, int);
 
-void init_tableau_interfaces();
+void init_tableau_interfaces(Interface*);
 
-void print_interfaces();
+void print_interfaces(Interface*);
 
 int poids_interface(const Interface *);
 

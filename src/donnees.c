@@ -167,4 +167,3 @@ int formation[NBR_FORMATIONS][6]={
                   
 //Variables globales utilisees dans le reste du programme
 double distances[NBR_SPECIALITES + 1][NBR_SPECIALITES + 1];
-Interface infos_interface[NBR_INTERFACES];
