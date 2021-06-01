@@ -5,6 +5,7 @@
 #include "tri.h"
 #include "interface.h"
 
+#define DEPTH 8
 
 extern int formation[NBR_FORMATIONS][6];
 extern float coord[NBR_NODES][2];
@@ -62,10 +63,25 @@ void improve_solution(Solution *sol) {
 
     //Ajouter les deux copies à l'arbre
     
-    for(int i = 0; i < 100; i++)
-    	improve_standard_error(sol);
+	for(int i = 0; i < 50; i++)
+	{
+		for(int j = 0; j < 1000; j++)
+		{
+			printf("debut std\n");
+			improve_standard_error(sol);
+			printf("fin std\n");
+		}
+		for(int j = 0; j <20; j++)
+		{
+			printf("debut penalty\n");
+			improve_penalties(sol);
+			printf("fin penalty\n");
+			
+		}
+	}
+    
+  
     print_solution(*sol);
-    //improve_penalties
 }
 
 /*Fonction permettant d'améliorer l'écart type des distances parcourues par les interfaces. 
@@ -83,22 +99,19 @@ void improve_standard_error(Solution *sol) {
     while (sol->interface[0].distance_totale > sol->avg_distance) {
   
         //Si l'interface n'a déjà pas de formation ce jour-ci, alors on passe au jour suivant
-        while(sol->interface[0].formation[jour].size == 0) {
+        while(sol->interface[0].formation[jour].size == index) {
             jour++;
             index = 0;
         }
-          
-	
-	//if(sol->interface[interface_receveuse_index].distance_totale > sol->avg_distance)
-	//	interface_receveuse_index--;
+         
 	//Vérification de la distance parcourue de l'interface receveuse afin que celle-ci ne devienne pas plus grande que la distance moyenne parcourue
         //Vérification de la compatibilité du créneau avec l'interface recevante, si incompatibilité, on prend la 2e interface avec le moins de distance parcourue
       	
         int *creneau = formation[sol->interface[0].formation[jour].int_array[index]];
+        
         int temps_creneau = creneau[5] - creneau[4];
         if(sol->interface[interface_receveuse_index].distance_totale > sol->avg_distance)
         	interface_receveuse_index--;
-        
 	//Si aucune interface 
 	while (interface_receveuse_index > 0 && check_compatibility(&(sol->interface[interface_receveuse_index]), creneau, temps_creneau) == -1)
         {
@@ -107,6 +120,7 @@ void improve_standard_error(Solution *sol) {
     		if(sol->interface[interface_receveuse_index].distance_totale > sol->avg_distance)
     			interface_receveuse_index--;
         }
+        
         
         //Si interface_receveuse_index = 0, cela signifie qu'aucune interface était à la fois compatible avec le créneau et avait une distance totale inférieure à celle de la moyenne, on passe donc au créneau suivant
         if(interface_receveuse_index > 0)
@@ -117,11 +131,8 @@ void improve_standard_error(Solution *sol) {
 		remove_element_intarray(&(sol->interface[0].formation[jour]), sol->interface[0].formation[jour].int_array[index]);
 		remove_creneau_agenda(sol->interface[0].agenda[jour], creneau, temps_creneau);
 
-		//Mise à jour des distances parcourues
-		sol->interface[interface_receveuse_index].distance_totale = compute_employee_distance(
-		        sol->interface[interface_receveuse_index]);
-		sol->interface[0].distance_totale = compute_employee_distance(sol->interface[0]);
-		
+		//Mise à jour de la solution et des interfaces
+		update_solution(sol);
 	}
 	else
 		index++;
@@ -130,6 +141,7 @@ void improve_standard_error(Solution *sol) {
         
 
     }
+    
     for(int p = 0; p < NBR_INTERFACES; p++)
     {
 	    for(int i = 0; i < 6; i++)
@@ -221,7 +233,6 @@ double compute_standard_error(Solution *sol, double avg) {
     for (int i = 0; i < NBR_INTERFACES; i++) {
         double current = 0, temp = 0;
         sol->interface[i].distance_totale = compute_employee_distance(sol->interface[i]);
-        printf("coucou %f\n", sol->interface[i].distance_totale);
         temp = sol->interface[i].distance_totale - avg;
         total += pow(temp, 2);
     }

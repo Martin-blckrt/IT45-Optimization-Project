@@ -21,6 +21,8 @@ void improve_solution(Solution *);
 
 void improve_standard_error(Solution*);
 
+void improve_penalties(Solution *);
+
 void update_solution(Solution *);
 
 double compute_distance(double, double, double, double);
