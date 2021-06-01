@@ -62,26 +62,31 @@ void improve_solution(Solution *sol) {
     //Creer deux copies de la solution sol
 
     //Ajouter les deux copies à l'arbre
-    
+    	
 	for(int i = 0; i < 50; i++)
 	{
-		for(int j = 0; j < 1000; j++)
+		for(int j = 0; j < 100; j++)
 		{
-			printf("debut std\n");
+			//printf("debut std\n");
 			improve_standard_error(sol);
-			printf("fin std\n");
+			//printf("fin std\n");
 		}
-		for(int j = 0; j <20; j++)
+		for(int j = 0; j <500; j++)
 		{
-			printf("debut penalty\n");
+			//printf("debut penalty\n");
 			improve_penalties(sol);
-			printf("fin penalty\n");
+			//printf("fin penalty\n");
 			
 		}
 	}
-    
-  
-    print_solution(*sol);
+	print_solution(*sol);
+	//improve_standard_error(sol);
+	//improve_penalties(sol);
+	/*Solution *sol1 = malloc(sizeof(sol));
+	Solution *sol2 = malloc(sizeof(sol));
+	improve_standard_error(sol1);
+	improve_penalties(sol2);*/
+	//print_solution(*sol);
 }
 
 /*Fonction permettant d'améliorer l'écart type des distances parcourues par les interfaces. 
@@ -211,6 +216,7 @@ void improve_penalties(Solution *sol) {
 
 
 void update_solution(Solution *sol) {
+    compute_distances_interfaces(sol);
     sol->avg_distance = compute_avg_distance(*sol);
     sol->standard_error = compute_standard_error(sol, sol->avg_distance);
     sol->fcorr = compute_fcorr(sol->avg_distance);
@@ -218,6 +224,11 @@ void update_solution(Solution *sol) {
     sol->z = compute_min_z(sol->avg_distance, sol->standard_error, sol->fcorr, sol->penalties);
 }
 
+void compute_distances_interfaces(Solution *sol)
+{
+	for(int i = 0; i < NBR_INTERFACES; i++)
+		sol->interface[i].distance_totale = compute_employee_distance(sol->interface[i]);
+}
 
 double compute_avg_distance(Solution sol) {
     double total = 0;
@@ -232,8 +243,8 @@ double compute_standard_error(Solution *sol, double avg) {
     double total = 0;
     for (int i = 0; i < NBR_INTERFACES; i++) {
         double current = 0, temp = 0;
-        sol->interface[i].distance_totale = compute_employee_distance(sol->interface[i]);
-        temp = sol->interface[i].distance_totale - avg;
+        current = sol->interface[i].distance_totale;
+        temp = current - avg;
         total += pow(temp, 2);
     }
     total = total / NBR_INTERFACES;

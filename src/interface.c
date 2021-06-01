@@ -191,7 +191,6 @@ double compute_employee_distance(Interface interface)
     return distance;
 }
 
-
 //Calcule le poids d'une interface afin d'avoir les interfaces ayant beaucoup de spécialités en haut de liste et les interfaces avec double compétences
 //en fin de liste
 int poids_interface(const Interface *interface)

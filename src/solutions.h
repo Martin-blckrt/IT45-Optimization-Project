@@ -11,6 +11,15 @@ typedef struct
 	int penalties;
 } Solution;
 
+typedef struct node
+{
+	struct node* leftchild;
+	struct node* rightchild;
+	Solution value;
+}Node;
+
+typedef Node* Arbre;
+ 
 int get_champs_formation(int, int);
 
 void solve();
@@ -26,6 +35,8 @@ void improve_penalties(Solution *);
 void update_solution(Solution *);
 
 double compute_distance(double, double, double, double);
+
+void compute_distances_interfaces(Solution *);
 
 double compute_avg_distance(Solution);
 
