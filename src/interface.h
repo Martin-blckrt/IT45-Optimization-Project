@@ -18,7 +18,7 @@ typedef struct
 	IntegerArray formation[6];
 	
 	double distance_totale;
-	int nb_penalites;
+	int nb_penalties;
 	
 }Interface;
 
@@ -37,5 +37,7 @@ void init_tableau_interfaces(Interface*);
 void print_interfaces(Interface*);
 
 int poids_interface(const Interface *);
+
+void compute_penalty_interface(Interface *);
 
 #endif

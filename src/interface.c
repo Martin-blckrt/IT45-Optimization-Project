@@ -15,7 +15,7 @@ void remplir_agendas(Interface *infos_interface)
     for(int i = 0; i < NBR_FORMATIONS; i++)
     {
         int temps_creneau = formation[i][5] - formation[i][4]; //Durée d'une formation
-	int jour = formation[i][3] - 1;
+	    int jour = formation[i][3] - 1;
         //On recherche la première interface pouvant prendre la formation, si on arrive au bout du tableau des interfaces sans avoir trouvé
         //d'interface valide, alors l'algorithme n'est pas capable de trouver de solution initiale valide
         int p = 0;
@@ -149,7 +149,6 @@ int check_compatibility(Interface *interface, int *creneau, int temps_creneau)
 
 void init_tableau_interfaces(Interface *infos_interface)
 {
-
 	for(int i = 0; i < NBR_INTERFACES; i++)
 	{
 		for(int j = 0; j < 2; j++)
@@ -162,8 +161,6 @@ void init_tableau_interfaces(Interface *infos_interface)
 			for(int p = 0; p < 13; p++)
 				infos_interface[i].agenda[j][p] = 0;
 		}
-	
-		
 	}
 }
 
@@ -210,7 +207,27 @@ int poids_interface(const Interface *interface)
     for(int i = 0; i < NBR_SPECIALITES; i++)
     	poids += interface->specialite[i];
     return poids;
+}
 
+void compute_penalty_interface(Interface *interface)
+{
+    for(int i = 0; i < NBR_INTERFACES; i++)
+    {
+        int penalty = 0;
+        for (int j = 0; j < 6; j++)
+        {
+            int *formations = interface[i].formation[j].int_array;
+            int nb_formations = interface[i].formation[j].size;
+            for (int index = 0; index < nb_formations; index++)
+            {
+                if (interface[i].specialite[get_champs_formation(formations[index], 1)] != 1)
+                {
+                    penalty += 1;
+                }
+            }
+        }
+        interface[i].nb_penalties = penalty;
+    }
 }
 
 void print_interfaces(Interface *infos_interface)
