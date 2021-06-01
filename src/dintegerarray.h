@@ -7,7 +7,7 @@ typedef struct {
     int capacity;
 }IntegerArray;
  
-void init_intarray(IntegerArray*, int);
+void init_intarray(IntegerArray*);
 
 void add_element_intarray(IntegerArray*, int);
 

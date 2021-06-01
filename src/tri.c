@@ -26,6 +26,17 @@ int compare_interfaces(const void *n1, const void *n2)
 		return 1;
 }
 
+int compare_interfaces_distance(const void *n1, const void *n2)
+{
+	const Interface *a = n1;
+	const Interface *b = n2;
+	
+	if(a->distance_totale > b->distance_totale)
+		return -1;
+	else
+		return 1;
+}
+
 int compare_penalties(const void *n1, const void *n2)
 {
     const Interface *a = n1;

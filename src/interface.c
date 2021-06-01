@@ -157,7 +157,7 @@ void init_tableau_interfaces(Interface *infos_interface)
 			infos_interface[i].specialite[j] = specialite_interfaces[i][j];
 		for(int j = 0; j < 6; j++)
 		{
-			init_intarray(&(infos_interface[i].formation[j]), 1);
+			init_intarray(&(infos_interface[i].formation[j]));
 			for(int p = 0; p < 13; p++)
 				infos_interface[i].agenda[j][p] = 0;
 		}
