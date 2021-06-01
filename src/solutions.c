@@ -145,16 +145,59 @@ void improve_standard_error(Solution *sol) {
 }
 
 
-void improve_penalties (Solution *sol)
-{
+void improve_penalties(Solution *sol) {
     qsort(sol->interface, NBR_INTERFACES, sizeof(sol->interface[0]), compare_penalties);
 
-    int jour = 0;
-    int index = 0;
+    IntegerArray *jour = sol->interface[0].formation;
 
+    //pour chaque jour
+    for (int k = 0; k < 6; k++)
+    {
+        int *jour_formations = jour[k].int_array;
 
-    int *creneau = formation[sol->interface[0].formation[jour].int_array[index]];
+        //pour chaque formation du jour
+        for (int p = 0; p < jour[k].size; p++)
+        {
+            int *creneau = formation[jour_formations[p]];
+            int temps_creneau = creneau[5] - creneau[4];
+            //si ce creneau genere une penalite pour l'interface qui l'a actuellement
+            if (sol->interface[0].specialite[get_champs_formation(jour_formations[p], 1)] != 1)
+            {
+                for (int j = 1; j < NBR_INTERFACES - 1; j++)
+                {
+                    //si l'interface j a la meme spe que le creneau
+                    if (sol->interface[j].specialite[get_champs_formation(jour_formations[p], 1)] == 1)
+                    {
+                        //si le creneau et l'interface j sont comptabiles
+                        if (check_compatibility(&(sol->interface[j]), creneau, temps_creneau) == -0)
+                        {
+                            //Mise à jour du tableau agenda et IntegerArray correspondants
+                            add_element_intarray(&(sol->interface[j].formation[k]), jour_formations[p]);
+                            remove_element_intarray(&(jour[k]), p);
+                            remove_creneau_agenda(sol->interface[0].agenda[k], creneau, temps_creneau);
+
+                            //Mise à jour des distances parcourues
+                            sol->interface[j].distance_totale = compute_employee_distance(sol->interface[j]);
+                            sol->interface[0].distance_totale = compute_employee_distance(sol->interface[0]);
+
+                            //Mise à jour des penalites
+                            sol->interface[j].nb_penalties = compute_penalty_interface(sol->interface[j]);
+                            sol->interface[0].nb_penalties = compute_penalty_interface(sol->interface[0]);
+
+                            //si on a assigné le creneau on peut sortir et aller au creneau d'après
+                            break;
+                        }
+                    }
+                }
+            //break arrives here
+            }
+        }
+    }
+
+    //Mise à jour de la solution
+    update_solution(sol);
 }
+
 
 void update_solution(Solution *sol) {
     sol->avg_distance = compute_avg_distance(*sol);
@@ -197,9 +240,12 @@ double compute_fcorr(double avg) {
 int compute_penalties(Solution sol) {
     int total = 0;
     Interface *infos_interface = sol.interface;
-    compute_penalty_interface(infos_interface);
+
     for (int i = 0; i < NBR_INTERFACES; i++)
+    {
+        infos_interface[i].nb_penalties = compute_penalty_interface(infos_interface[i]);
         total += infos_interface[i].nb_penalties;
+    }
     return total;
 }
 
@@ -254,3 +300,5 @@ void print_solution(Solution solution) {
     printf("z is  : %f\navg distance : %f\nstandard error : %f\nfcorr : %f\npenalties : %d\n", solution.z,
            solution.avg_distance, solution.standard_error, solution.fcorr, solution.penalties);
 }
+
+
