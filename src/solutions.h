@@ -27,11 +27,11 @@ double compute_distance(double, double, double, double);
 
 double compute_avg_distance(Solution);
 
-double compute_standard_error(Solution, double);
+double compute_standard_error(Solution*, double);
 
 double compute_fcorr(double);
 
-int compute_penalties(Solution);
+int compute_penalties(Solution*);
 
 double compute_min_z(double avg, double std, double fcorr, double penalty);
 

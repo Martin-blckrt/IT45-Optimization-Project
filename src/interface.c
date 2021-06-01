@@ -191,11 +191,6 @@ double compute_employee_distance(Interface interface)
     return distance;
 }
 
-void compute_distance_interfaces(Interface *interface)
-{
-	for(int i = 0; i < NBR_INTERFACES; i++)
-		interface[i].distance_totale = compute_employee_distance(interface[i]);
-}
 
 //Calcule le poids d'une interface afin d'avoir les interfaces ayant beaucoup de spécialités en haut de liste et les interfaces avec double compétences
 //en fin de liste
@@ -209,27 +204,24 @@ int poids_interface(const Interface *interface)
     return poids;
 }
 
-void compute_penalty_interface(Interface *interface)
+
+int compute_penalty_interface(Interface interface)
 {
-    for(int i = 0; i < NBR_INTERFACES; i++)
+    int penalty = 0;
+    for (int j = 0; j < 6; j++)
     {
-        int penalty = 0;
-        for (int j = 0; j < 6; j++)
+        int *formations = interface.formation[j].int_array;
+        int nb_formations = interface.formation[j].size;
+        for (int index = 0; index < nb_formations; index++)
         {
-            int *formations = interface[i].formation[j].int_array;
-            int nb_formations = interface[i].formation[j].size;
-            for (int index = 0; index < nb_formations; index++)
+            if (interface.specialite[get_champs_formation(formations[index], 1)] != 1)
             {
-                if (interface[i].specialite[get_champs_formation(formations[index], 1)] != 1)
-                {
-                    penalty += 1;
-                }
+                penalty += 1;
             }
         }
-        interface[i].nb_penalties = penalty;
     }
+    return penalty;
 }
-
 void print_interfaces(Interface *infos_interface)
 {
     for(int i = 0; i < NBR_INTERFACES; i++)

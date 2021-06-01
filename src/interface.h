@@ -24,8 +24,6 @@ typedef struct
 
 double compute_employee_distance(Interface);
 
-void compute_distance_interfaces(Interface *);
-
 void remplir_agendas(Interface*);
 
 void remove_creneau_agenda(int *, int *, int);
@@ -38,6 +36,6 @@ void print_interfaces(Interface*);
 
 int poids_interface(const Interface *);
 
-void compute_penalty_interface(Interface *);
+int compute_penalty_interface(Interface);
 
 #endif

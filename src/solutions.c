@@ -52,7 +52,6 @@ void find_init_solution(Solution *solution_initiale) {
     print_formation();
 
     remplir_agendas(solution_initiale->interface);
-    compute_distance_interfaces(solution_initiale->interface);
     update_solution(solution_initiale);
     print_solution(*solution_initiale);
 }
@@ -201,9 +200,9 @@ void improve_penalties(Solution *sol) {
 
 void update_solution(Solution *sol) {
     sol->avg_distance = compute_avg_distance(*sol);
-    sol->standard_error = compute_standard_error(*sol, sol->avg_distance);
+    sol->standard_error = compute_standard_error(sol, sol->avg_distance);
     sol->fcorr = compute_fcorr(sol->avg_distance);
-    sol->penalties = compute_penalties(*sol);
+    sol->penalties = compute_penalties(sol);
     sol->z = compute_min_z(sol->avg_distance, sol->standard_error, sol->fcorr, sol->penalties);
 }
 
@@ -217,12 +216,13 @@ double compute_avg_distance(Solution sol) {
     return total;
 }
 
-double compute_standard_error(Solution sol, double avg) {
+double compute_standard_error(Solution *sol, double avg) {
     double total = 0;
     for (int i = 0; i < NBR_INTERFACES; i++) {
         double current = 0, temp = 0;
-        current = sol.interface[i].distance_totale;
-        temp = current - avg;
+        sol->interface[i].distance_totale = compute_employee_distance(sol->interface[i]);
+        printf("coucou %f\n", sol->interface[i].distance_totale);
+        temp = sol->interface[i].distance_totale - avg;
         total += pow(temp, 2);
     }
     total = total / NBR_INTERFACES;
@@ -237,9 +237,9 @@ double compute_fcorr(double avg) {
     return total;
 }
 
-int compute_penalties(Solution sol) {
+int compute_penalties(Solution *sol) {
     int total = 0;
-    Interface *infos_interface = sol.interface;
+    Interface *infos_interface = sol->interface;
 
     for (int i = 0; i < NBR_INTERFACES; i++)
     {
@@ -295,6 +295,7 @@ void print_solution(Solution solution) {
         }
 
         printf("distance parcourue : %f\n", solution.interface[i].distance_totale);
+        printf("Penalites : %d\n", solution.interface[i].nb_penalties);
     }
     printf("\n*****************************SOLUTION*************************\n");
     printf("z is  : %f\navg distance : %f\nstandard error : %f\nfcorr : %f\npenalties : %d\n", solution.z,
