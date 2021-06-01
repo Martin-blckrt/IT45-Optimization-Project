@@ -38,6 +38,6 @@ void print_interfaces(Interface*);
 
 int poids_interface(const Interface *);
 
-void compute_penalty_interface(Interface *);
+int compute_penalty_interface(Interface);
 
 #endif
