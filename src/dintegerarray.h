@@ -4,7 +4,6 @@
 typedef struct {
     int* int_array;
     int size;
-    int capacity;
 }IntegerArray;
  
 void init_intarray(IntegerArray*);
