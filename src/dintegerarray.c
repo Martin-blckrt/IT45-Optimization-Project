@@ -4,29 +4,24 @@
 
 void init_intarray(IntegerArray* array)
 {
-    array->int_array = NULL;
-	array->capacity = 0;
+    array->int_array = malloc(sizeof(int));
+	array->capacity = 1;
     array->size = 0;
     
 }
 
 void add_element_intarray(IntegerArray* a, int value)
 {
-	if(a->capacity == 0)
-	{
-		a->int_array = malloc(sizeof(int));
-		a->capacity++;
-		a->int_array[a->size++] = value;
-		return;
-	}
-    
+
 	if(a->size >= a->capacity)
 	{
 		a->capacity = a->capacity * 2;
-		int* temp = malloc(a->capacity * sizeof(int));
-		for(int i = 0; i < a->size; i++)
-			temp[i] = a->int_array[i];
-		free(a->int_array);
+		int* temp = realloc(a->int_array, a->capacity * sizeof(int));
+		if(temp == NULL)
+		{
+			printf("Error");
+			return;
+		}
 		a->int_array = temp;
 	}
 	a->int_array[a->size] = value;

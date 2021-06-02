@@ -37,13 +37,24 @@ double compute_distance(double xa, double ya, double xb, double yb) {
 
 void solve() {
     Solution solution_initiale;
-
     find_init_solution(&solution_initiale);
+    
     Arbre arbre = malloc(sizeof(Node));
     arbre->leftchild = NULL;
     arbre->rightchild = NULL;
     arbre->solution = &solution_initiale;
-    improve_solution(&arbre, 3);   
+    improve_solution(&arbre, DEPTH);  
+    
+    //Stockage du dernier étage de l'arbre dans le tableau population, et affichage des différents z
+    int size = pow(2, DEPTH);
+    Solution population[size];
+    find_last_floor(arbre, population, 0);
+    
+    //Affichage des solutions
+    for(int i = 0; i < size; i++)
+    	print_solution(population[i]);
+    	
+    //Free ressources
 }
 
 void find_init_solution(Solution *solution_initiale) {
@@ -58,73 +69,27 @@ void find_init_solution(Solution *solution_initiale) {
     printf("****************************SOLUTION INITIALE********************\n");
     print_formation();
     print_solution(*solution_initiale);
-    printf("\n*************************************************\n");
+    printf("\n********************************************************************************************\n");
 }
 
 void improve_solution(Arbre *head, int depth) {
 
-	add_child(head, (*head)->solution, 0);
-	add_child(head, (*head)->solution, 1);
-	improve_standard_error((*head)->leftchild->solution);
-	improve_penalties((*head)->rightchild->solution);
-	
-	add_child(&((*head)->leftchild), (*head)->leftchild->solution, 0);
-	add_child(&((*head)->leftchild), (*head)->leftchild->solution, 1);
-	improve_standard_error((*head)->leftchild->leftchild->solution);
-	improve_penalties((*head)->leftchild->rightchild->solution);
-	//(*head)->leftchild->solution->avg_distance = 3;
-	print_arbre(*head);
-	/*if(depth == 0)
+	if(depth == 0)
 	{
-		print_z(*((*head)->solution));
+		//print_z(*((*head)->solution));
 		return;
 	}
-	printf("depth : %d\n", depth);
 	//Creer deux copies de la solution sol que l'on ajoute à l'arbre binaire
 	add_child(head, (*head)->solution, 0);
 	add_child(head, (*head)->solution, 1);
+	
+	for(int i = 0; i < 10; i++)
+    		improve_standard_error((*head)->leftchild->solution);
+    	for(int j = 0; j < 30; j++)
+    		improve_penalties((*head)->rightchild->solution);
     	
-    	printf("debut std\n");
-    	fflush(stdout);
-    	improve_standard_error((*head)->leftchild->solution);
-    	printf("fin std\n");
-    	printf("debut penalty\n");
-    	improve_penalties((*head)->rightchild->solution);
-    	printf("fin penalty\n");
-    	print_z(*((*head)->leftchild->solution));
     	improve_solution(&((*head)->leftchild), depth-1);
-    	improve_solution(&((*head)->rightchild), depth-1);*/
-    	/*add_child(head, (*head)->solution, 0);
-    	improve_standard_error((*head)->leftchild->solution);
-    	print_z(*((*head)->leftchild->solution));
-    	add_child(&((*head)->leftchild), (*head)->solution, 0);
-    	improve_standard_error((*head)->leftchild->leftchild->solution);
-    	print_z(*((*head)->leftchild->leftchild->solution));*/
-    	//print_z(*((*head)->leftchild->solution));
-    	//improve_standard_error((*head)->solution);
-    //Ajouter les deux copies à l'arbre
-    	
-    	//SItuation de bug : première boucle de 0 à 100, deuxieme boucle de 0 à 100 et troisieme boucle de 0 à 20, ça bug avec pas mal de grosses valeurs pour la 3e boucle
-	/*for(int i = 0; i < 1; i++)
-	{
-		for(int j = 0; j < 50; j++)
-		{
-			printf("debut std\n");
-			improve_standard_error((*head)->solution);
-			printf("fin std\n");
-			printf("debut penalty\n");
-			improve_penalties((*head)->solution);
-			printf("fin penalty\n");
-		}
-		for(int j = 0; j <0; j++)
-		{
-			printf("debut penalty\n");
-			improve_penalties((*head)->solution);
-			printf("fin penalty\n");
-			
-		}
-	}*/
-	//print_arbre(*head);
+    	improve_solution(&((*head)->rightchild), depth-1);
 
 }
 
@@ -172,9 +137,8 @@ void improve_standard_error(Solution *sol) {
 	{
 		//Mise à jour du tableau agenda et IntegerArray correspondants, passage au créneau suivant par suppression de la formation dans le tableau des formations (l'index 0 est donc remplacé par la formation suivante)
 		int temp = sol->interface[0].formation[jour].int_array[index];
-		remove_element_intarray(&(sol->interface[0].formation[jour]), temp);
-		add_element_intarray(&(sol->interface[interface_receveuse_index].formation[jour]), temp);
-		
+		add_element_intarray(&(sol->interface[interface_receveuse_index].formation[jour]), sol->interface[0].formation[jour].int_array[index]);
+		remove_element_intarray(&(sol->interface[0].formation[jour]), sol->interface[0].formation[jour].int_array[index]);
 		remove_creneau_agenda(sol->interface[0].agenda[jour], creneau, temps_creneau);
 		
 		//Mise à jour de la solution et des interfaces
@@ -199,7 +163,6 @@ void improve_standard_error(Solution *sol) {
     }
     //Mise à jour de la solution
     update_solution(sol);
-    //print_solution(*sol);
     
     
 }

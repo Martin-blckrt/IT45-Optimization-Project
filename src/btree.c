@@ -18,11 +18,14 @@ void add_child(Arbre *arbre, Solution *value, int side)
 		(*child)->rightchild = NULL;
 		(*child)->solution = malloc(sizeof(*value));
 		memcpy((*child)->solution, value, sizeof(*value));	
-		/*for(int i = 0; i < NBR_INTERFACES; i++)
+		for(int i = 0; i < NBR_INTERFACES; i++)
 		{
 			for(int j = 0; j < 6; j++)
-				memcpy(&((*child)->solution->interface[i].formation[j].int_array), &(value->interface[i].formation[j].int_array), sizeof(value->interface[i].formation[j].int_array));
-		}*/
+			{
+				(*child)->solution->interface[i].formation[j].int_array = malloc(value->interface[i].formation[j].size * sizeof(int));
+				memcpy((*child)->solution->interface[i].formation[j].int_array, value->interface[i].formation[j].int_array, sizeof(int) * value->interface[i].formation[j].size);
+			}
+		}
 	}
 }
 
@@ -44,12 +47,33 @@ void delete_arbre(Arbre arbre)
 	free(arbre->rightchild);
 	free(arbre);
 }
-				
+		
+int find_last_floor(Arbre arbre, Solution *pop, int index)
+{
+	if(arbre->leftchild == NULL)
+	{
+		memcpy(&pop[index], arbre->solution, sizeof(*(arbre->solution)));
+		for(int i = 0; i < NBR_INTERFACES; i++)
+		{
+			for(int j = 0; j < 6; j++)
+			{
+				pop[index].interface[i].formation[j].int_array = malloc(arbre->solution->interface[i].formation[j].size * sizeof(int));
+				memcpy(pop[index].interface[i].formation[j].int_array, arbre->solution->interface[i].formation[j].int_array, sizeof(int) * arbre->solution->interface[i].formation[j].size);
+			}
+		}
+		index++;
+		return index;
+	}
+	index = find_last_floor(arbre->leftchild, pop, index);
+	index = find_last_floor(arbre->rightchild, pop, index);
+	
+}		
+
 void print_arbre(Arbre arbre)
 {
 	if(arbre == NULL)
 		return;
-	print_z(*(arbre->solution));
+	print_solution(*(arbre->solution));
 	printf("LEFT\n");
 	print_arbre(arbre->leftchild);
 	printf("FINLEFT\n");
