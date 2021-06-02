@@ -14,8 +14,11 @@ void add_element_intarray(IntegerArray* a, int value)
 {
     if(a != NULL)
     {
-    	if(a->size + 1 > a->capacity)
-        	a->int_array = realloc(a->int_array, (a->capacity*=2) * sizeof(int));
+    	if(a->size == a->capacity)
+    	{
+    		a->capacity = a->capacity * 2;
+        	a->int_array = realloc(a->int_array, a->capacity * sizeof(int));
+        }
         a->size++;
         a->int_array[a->size-1] = value;
     }
