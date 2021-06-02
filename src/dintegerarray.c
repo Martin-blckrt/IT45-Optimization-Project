@@ -4,7 +4,6 @@
 
 void init_intarray(IntegerArray* array)
 {
-    
     array->int_array = (int*)malloc(sizeof(int) * 1);
 	array->capacity = 1;
     array->size = 0;
@@ -32,17 +31,12 @@ void remove_element_intarray(IntegerArray* a, int value)
     	for(i = i; i < a->size - 1; i++)
     		a->int_array[i] = a->int_array[i+1];
         a->size--;
-        a->int_array = realloc(a->int_array, a->size * sizeof(int));
     }
 
 }
 
 void clean_intarray(IntegerArray* a)
 {
-    while(a->size != 0)
-    {
-        remove_element_intarray(a, a->int_array[0]);
-    }
     a->int_array = NULL;
     free(a->int_array);
 }
