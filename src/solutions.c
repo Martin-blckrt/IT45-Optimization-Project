@@ -39,11 +39,11 @@ void solve() {
     Solution solution_initiale;
 
     find_init_solution(&solution_initiale);
-    Arbre arbre = malloc(sizeof(Node));
+    /*Arbre arbre = malloc(sizeof(Node));
     arbre->leftchild = NULL;
     arbre->rightchild = NULL;
     arbre->solution = &solution_initiale;
-    improve_solution(&arbre, 3);
+    improve_solution(&arbre, 3);*/
     
 }
 
@@ -57,8 +57,8 @@ void find_init_solution(Solution *solution_initiale) {
     update_solution(solution_initiale);
     
     printf("****************************SOLUTION INITIALE********************\n");
-    //print_formation();
-    //print_solution(*solution_initiale);
+    print_formation();
+    print_solution(*solution_initiale);
     printf("\n*************************************************\n");
 }
 

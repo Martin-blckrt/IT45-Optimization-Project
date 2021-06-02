@@ -3,6 +3,7 @@
 
 typedef struct {
     int* int_array;
+    int capacity;
     int size;
 }IntegerArray;
  

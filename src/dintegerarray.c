@@ -4,7 +4,9 @@
 
 void init_intarray(IntegerArray* array)
 {
-    array->int_array = NULL;
+    
+    array->int_array = (int*)malloc(sizeof(int) * 1);
+	array->capacity = 1;
     array->size = 0;
     
 }
@@ -13,7 +15,9 @@ void add_element_intarray(IntegerArray* a, int value)
 {
     if(a != NULL)
     {
-        a->int_array = realloc(a->int_array, (a->size++) * sizeof(int));
+    	if(a->size + 1 > a->capacity)
+        	a->int_array = realloc(a->int_array, (a->capacity*=2) * sizeof(int));
+        a->size++;
         a->int_array[a->size-1] = value;
     }
 }
