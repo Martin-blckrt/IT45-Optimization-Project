@@ -4,7 +4,7 @@
 #include <string.h>
 #include "solutions.h"
 #include "tri.h"
-#include "interface.h"
+#include "btree.h"
 
 #define DEPTH 8
 
@@ -39,8 +39,11 @@ void solve() {
     Solution solution_initiale;
 
     find_init_solution(&solution_initiale);
-    
-    improve_solution(&solution_initiale);
+    Arbre arbre = malloc(sizeof(Node));
+    arbre->leftchild = NULL;
+    arbre->rightchild = NULL;
+    arbre->solution = &solution_initiale;
+    improve_solution(&arbre);
 }
 
 void find_init_solution(Solution *solution_initiale) {
@@ -59,29 +62,30 @@ void find_init_solution(Solution *solution_initiale) {
     print_solution(*solution_initiale);
 }
 
-void improve_solution(Solution *sol) {
+void improve_solution(Arbre *head) {
 
     //Creer deux copies de la solution sol
 
     //Ajouter les deux copies à l'arbre
     	
     	//SItuation de bug : première boucle de 0 à 100, deuxieme boucle de 0 à 100 et troisieme boucle de 0 à 20, ça bug avec pas mal de grosses valeurs pour la 3e boucle
-	/*for(int i = 0; i < 1; i++)
+	for(int i = 0; i < 1; i++)
 	{
 		for(int j = 0; j < 1; j++)
 		{
 			printf("debut std\n");
-			improve_standard_error(sol);
+			improve_standard_error((*head)->solution);
 			printf("fin std\n");
 		}
 		for(int j = 0; j <10; j++)
 		{
 			printf("debut penalty\n");
-			improve_penalties(sol);
+			improve_penalties((*head)->solution);
 			printf("fin penalty\n");
 			
 		}
-	}*/
+	}
+	print_arbre(*head);
 
 }
 

@@ -1,5 +1,9 @@
+#ifndef DEF_SOLUTIONS
+#define DEF_SOLUTIONS
+
 #include "constants.h"
 #include "interface.h"
+
 
 typedef struct
 {
@@ -13,12 +17,12 @@ typedef struct
 
 typedef struct node
 {
-	struct node* leftchild;
-	struct node* rightchild;
-	Solution value;
-}Node;
+	struct node *leftchild;
+	struct node *rightchild;
+	Solution *solution;
+} Node;
 
-typedef Node* Arbre;
+typedef Node *Arbre;
  
 int get_champs_formation(int, int);
 
@@ -26,7 +30,7 @@ void solve();
 
 void find_init_solution(Solution *);
 
-void improve_solution(Solution *);
+void improve_solution(Arbre *);
 
 void improve_standard_error(Solution*);
 
@@ -53,3 +57,5 @@ void print_formation();
 void print_solution(Solution);
 
 void print_distances();
+
+#endif
