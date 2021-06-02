@@ -43,8 +43,7 @@ void solve() {
     arbre->leftchild = NULL;
     arbre->rightchild = NULL;
     arbre->solution = &solution_initiale;
-    improve_solution(&arbre, 3);
-    
+    improve_solution(&arbre, 3);   
 }
 
 void find_init_solution(Solution *solution_initiale) {

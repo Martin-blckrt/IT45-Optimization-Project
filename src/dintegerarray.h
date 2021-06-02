@@ -1,10 +1,12 @@
 #ifndef DEF_DINTEGERARRAY
 #define DEF_INTEGERARRAY
 
+#include <stdio.h>
+
 typedef struct {
+    size_t capacity;
+    size_t size;
     int* int_array;
-    int capacity;
-    int size;
 }IntegerArray;
  
 void init_intarray(IntegerArray*);
