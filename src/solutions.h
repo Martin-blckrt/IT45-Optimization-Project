@@ -30,7 +30,7 @@ void solve();
 
 void find_init_solution(Solution *);
 
-void improve_solution(Arbre *);
+void improve_solution(Arbre *, int);
 
 void improve_standard_error(Solution*);
 
@@ -53,6 +53,10 @@ int compute_penalties(Solution*);
 double compute_min_z(double avg, double std, double fcorr, double penalty);
 
 void print_formation();
+
+void print_z(Solution);
+
+void print_interfaces(Interface*);
 
 void print_solution(Solution);
 

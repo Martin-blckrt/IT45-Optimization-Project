@@ -221,16 +221,29 @@ int compute_penalty_interface(Interface interface)
     }
     return penalty;
 }
-void print_interfaces(Interface *infos_interface)
+
+void print_interface(Interface interface)
 {
-    for(int i = 0; i < NBR_INTERFACES; i++)
-    {
-        printf("\nInterface %d : \nCompetences : %d %d\nPoids : %d\nSpecialites : ", i, infos_interface[i].competence[0], infos_interface[i].competence[1], poids_interface(&infos_interface[i]));
+        printf("Competences : %d %d\nSpecialites : ", interface.competence[0], interface.competence[1]);
         for(int j = 0; j < NBR_SPECIALITES; j++)
         {
-        	printf("%d ", infos_interface[i].specialite[j]);
+        	printf("%d ", interface.specialite[j]);
         	
         }
-        printf("\n\n");
-     }
+        printf("\nPoids : %d\n", poids_interface(&interface));
+        for (int j = 0; j < 6; j++) {
+            printf("Jour %d : ", j + 1);
+            for (int p = 0; p < 13; p++) {
+                printf("%d ", interface.agenda[j][p]);
+            }
+            if (interface.formation[j].size != 0)
+                printf("Index formations (!= numero apprenant) : ");
+            for (int p = 0; p < interface.formation[j].size; p++)
+                printf(" %d", interface.formation[j].int_array[p]);
+            printf("\n");
+        }
+
+        printf("distance parcourue : %f\n", interface.distance_totale);
+        printf("Penalites : %d\n\n", interface.nb_penalties);
+     
 }

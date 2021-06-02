@@ -32,7 +32,7 @@ int check_compatibility(Interface *, int *, int);
 
 void init_tableau_interfaces(Interface*);
 
-void print_interfaces(Interface*);
+void print_interface(Interface);
 
 int poids_interface(const Interface *);
 

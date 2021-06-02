@@ -43,7 +43,8 @@ void solve() {
     arbre->leftchild = NULL;
     arbre->rightchild = NULL;
     arbre->solution = &solution_initiale;
-    improve_solution(&arbre);
+    improve_solution(&arbre, 3);
+    
 }
 
 void find_init_solution(Solution *solution_initiale) {
@@ -52,40 +53,79 @@ void find_init_solution(Solution *solution_initiale) {
 
     qsort(formation, NBR_FORMATIONS, sizeof(formation[0]), compare_formations);
     qsort(solution_initiale->interface, NBR_INTERFACES, sizeof(solution_initiale->interface[0]), compare_interfaces);
-    //Affichage tableau formation et interfaces pour débuggage    
-
-    printf("\n*********************FORMATIONS****************\n");
-    print_formation();
-
     remplir_agendas(solution_initiale->interface);
     update_solution(solution_initiale);
-    print_solution(*solution_initiale);
+    
+    printf("****************************SOLUTION INITIALE********************\n");
+    //print_formation();
+    //print_solution(*solution_initiale);
+    printf("\n*************************************************\n");
 }
 
-void improve_solution(Arbre *head) {
+void improve_solution(Arbre *head, int depth) {
 
-    //Creer deux copies de la solution sol
-
+	add_child(head, (*head)->solution, 0);
+	add_child(head, (*head)->solution, 1);
+	improve_standard_error((*head)->leftchild->solution);
+	improve_penalties((*head)->rightchild->solution);
+	
+	add_child(&((*head)->leftchild), (*head)->leftchild->solution, 0);
+	add_child(&((*head)->leftchild), (*head)->leftchild->solution, 1);
+	improve_standard_error((*head)->leftchild->leftchild->solution);
+	improve_penalties((*head)->leftchild->rightchild->solution);
+	//(*head)->leftchild->solution->avg_distance = 3;
+	print_arbre(*head);
+	/*if(depth == 0)
+	{
+		print_z(*((*head)->solution));
+		return;
+	}
+	printf("depth : %d\n", depth);
+	//Creer deux copies de la solution sol que l'on ajoute à l'arbre binaire
+	add_child(head, (*head)->solution, 0);
+	add_child(head, (*head)->solution, 1);
+    	
+    	printf("debut std\n");
+    	fflush(stdout);
+    	improve_standard_error((*head)->leftchild->solution);
+    	printf("fin std\n");
+    	printf("debut penalty\n");
+    	improve_penalties((*head)->rightchild->solution);
+    	printf("fin penalty\n");
+    	print_z(*((*head)->leftchild->solution));
+    	improve_solution(&((*head)->leftchild), depth-1);
+    	improve_solution(&((*head)->rightchild), depth-1);*/
+    	/*add_child(head, (*head)->solution, 0);
+    	improve_standard_error((*head)->leftchild->solution);
+    	print_z(*((*head)->leftchild->solution));
+    	add_child(&((*head)->leftchild), (*head)->solution, 0);
+    	improve_standard_error((*head)->leftchild->leftchild->solution);
+    	print_z(*((*head)->leftchild->leftchild->solution));*/
+    	//print_z(*((*head)->leftchild->solution));
+    	//improve_standard_error((*head)->solution);
     //Ajouter les deux copies à l'arbre
     	
     	//SItuation de bug : première boucle de 0 à 100, deuxieme boucle de 0 à 100 et troisieme boucle de 0 à 20, ça bug avec pas mal de grosses valeurs pour la 3e boucle
-	for(int i = 0; i < 1; i++)
+	/*for(int i = 0; i < 1; i++)
 	{
-		for(int j = 0; j < 1; j++)
+		for(int j = 0; j < 50; j++)
 		{
 			printf("debut std\n");
 			improve_standard_error((*head)->solution);
 			printf("fin std\n");
+			printf("debut penalty\n");
+			improve_penalties((*head)->solution);
+			printf("fin penalty\n");
 		}
-		for(int j = 0; j <10; j++)
+		for(int j = 0; j <0; j++)
 		{
 			printf("debut penalty\n");
 			improve_penalties((*head)->solution);
 			printf("fin penalty\n");
 			
 		}
-	}
-	print_arbre(*head);
+	}*/
+	//print_arbre(*head);
 
 }
 
@@ -118,6 +158,7 @@ void improve_standard_error(Solution *sol) {
         if(sol->interface[interface_receveuse_index].distance_totale > sol->avg_distance)
         	interface_receveuse_index--;
 	//Si aucune interface 
+	
 	while (interface_receveuse_index > 0 && check_compatibility(&(sol->interface[interface_receveuse_index]), creneau, temps_creneau) == -1)
         {
     		interface_receveuse_index--;
@@ -130,17 +171,20 @@ void improve_standard_error(Solution *sol) {
         //Si interface_receveuse_index = 0, cela signifie qu'aucune interface était à la fois compatible avec le créneau et avait une distance totale inférieure à celle de la moyenne, on passe donc au créneau suivant
         if(interface_receveuse_index > 0)
 	{
-		
 		//Mise à jour du tableau agenda et IntegerArray correspondants, passage au créneau suivant par suppression de la formation dans le tableau des formations (l'index 0 est donc remplacé par la formation suivante)
-		add_element_intarray(&(sol->interface[interface_receveuse_index].formation[jour]), sol->interface[0].formation[jour].int_array[index]);
-		remove_element_intarray(&(sol->interface[0].formation[jour]), sol->interface[0].formation[jour].int_array[index]);
+		int temp = sol->interface[0].formation[jour].int_array[index];
+		remove_element_intarray(&(sol->interface[0].formation[jour]), temp);
+		add_element_intarray(&(sol->interface[interface_receveuse_index].formation[jour]), temp);
+		
 		remove_creneau_agenda(sol->interface[0].agenda[jour], creneau, temps_creneau);
-
+		
 		//Mise à jour de la solution et des interfaces
 		update_solution(sol);
+		
 	}
 	else
 		index++;
+	
 	
 	interface_receveuse_index = NBR_INTERFACES - 1;
         
@@ -156,6 +200,7 @@ void improve_standard_error(Solution *sol) {
     }
     //Mise à jour de la solution
     update_solution(sol);
+    //print_solution(*sol);
     
     
 }
@@ -227,7 +272,9 @@ void update_solution(Solution *sol) {
 void compute_distances_interfaces(Solution *sol)
 {
 	for(int i = 0; i < NBR_INTERFACES; i++)
+	{
 		sol->interface[i].distance_totale = compute_employee_distance(sol->interface[i]);
+	}
 }
 
 double compute_avg_distance(Solution sol) {
@@ -286,8 +333,10 @@ void print_distances() {
 }
 
 void print_formation() {
+
+	printf("\n*********************FORMATIONS****************\n");
     for (int i = 0; i < NBR_FORMATIONS; i++) {
-        printf("\nIndex formation : %d\n", i);
+        printf("\nIndex formation (!= numero apprenant) : %d\n", i);
         printf("Apprenant %d : \n", formation[i][0]);
         printf("Specialite : %d\n", formation[i][1]);
         printf("Competence requise : %d\n", formation[i][2]);
@@ -297,31 +346,28 @@ void print_formation() {
     }
 }
 
+void print_z(Solution solution)
+{
+	printf("\n*****************************SOLUTION*************************\n");
+	fflush(stdout);
+    	printf("z is  : %f\navg distance : %f\nstandard error : %f\nfcorr : %f\npenalties : %d\n", solution.z,
+           solution.avg_distance, solution.standard_error, solution.fcorr, solution.penalties);
+}
+
+void print_interfaces(Interface *interface)
+{
+	printf("\n**********************INTERFACES************************\n");
+	for(int i = 0; i < NBR_INTERFACES; i++)
+	{
+		printf("Index interface (indépendant de l'interface) : %d\n", i);
+		print_interface(interface[i]);
+	}
+}
 
 void print_solution(Solution solution) {
-    printf("\n**********************INTERFACES************************\n");
-    print_interfaces(solution.interface);
-    printf("\n*****************************AGENDA*************************\n");
-    for (int i = 0; i < NBR_INTERFACES; i++) {
-        printf("\nInterface %d :\n", i);
-        for (int j = 0; j < 6; j++) {
-            printf("Jour %d : ", j + 1);
-            for (int p = 0; p < 13; p++) {
-                printf("%d ", solution.interface[i].agenda[j][p]);
-            }
-            if (solution.interface[i].formation[j].size != 0)
-                printf("Index formations : ");
-            for (int p = 0; p < solution.interface[i].formation[j].size; p++)
-                printf(" %d", solution.interface[i].formation[j].int_array[p]);
-            printf("\n");
-        }
-
-        printf("distance parcourue : %f\n", solution.interface[i].distance_totale);
-        printf("Penalites : %d\n", solution.interface[i].nb_penalties);
-    }
-    printf("\n*****************************SOLUTION*************************\n");
-    printf("z is  : %f\navg distance : %f\nstandard error : %f\nfcorr : %f\npenalties : %d\n", solution.z,
-           solution.avg_distance, solution.standard_error, solution.fcorr, solution.penalties);
+    	print_interfaces(solution.interface);
+	print_z(solution);
+    
 }
 
 

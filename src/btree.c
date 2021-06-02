@@ -18,6 +18,11 @@ void add_child(Arbre *arbre, Solution *value, int side)
 		(*child)->rightchild = NULL;
 		(*child)->solution = malloc(sizeof(*value));
 		memcpy((*child)->solution, value, sizeof(*value));	
+		/*for(int i = 0; i < NBR_INTERFACES; i++)
+		{
+			for(int j = 0; j < 6; j++)
+				memcpy(&((*child)->solution->interface[i].formation[j].int_array), &(value->interface[i].formation[j].int_array), sizeof(value->interface[i].formation[j].int_array));
+		}*/
 	}
 }
 
@@ -44,7 +49,11 @@ void print_arbre(Arbre arbre)
 {
 	if(arbre == NULL)
 		return;
-	print_solution(*(arbre->solution));
+	print_z(*(arbre->solution));
+	printf("LEFT\n");
 	print_arbre(arbre->leftchild);
+	printf("FINLEFT\n");
+	printf("RIGHT\n");
 	print_arbre(arbre->rightchild);
+	printf("FINRIGHT\n");
 }
