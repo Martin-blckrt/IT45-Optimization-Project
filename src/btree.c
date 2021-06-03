@@ -14,18 +14,23 @@ void add_child(Arbre *arbre, Solution *value, int side)
 		else
 			child = &((*arbre)->rightchild);
 		(*child) = malloc(sizeof(Node));
+		(*child)->solution = NULL;
 		(*child)->leftchild = NULL;
 		(*child)->rightchild = NULL;
 		(*child)->solution = malloc(sizeof(*value));
-		memcpy((*child)->solution, value, sizeof(*value));	
+        *((*child)->solution) = *value;
 		for(int i = 0; i < NBR_INTERFACES; i++)
 		{
 			for(int j = 0; j < 6; j++)
 			{
 				(*child)->solution->interface[i].formation[j].int_array = malloc(value->interface[i].formation[j].size * sizeof(int));
-				memcpy((*child)->solution->interface[i].formation[j].int_array, value->interface[i].formation[j].int_array, sizeof(int) * value->interface[i].formation[j].size);
+				for(int p = 0; p < value->interface[i].formation[j].size; p++)
+                {
+                    (*child)->solution->interface[i].formation[j].int_array[p] = value->interface[i].formation[j].int_array[p];
+                }
 			}
 		}
+
 	}
 }
 
@@ -35,30 +40,47 @@ void delete_arbre(Arbre arbre)
 		return;
 	delete_arbre(arbre->leftchild);
 	delete_arbre(arbre->rightchild);
-	
+
 	Interface *interface = arbre->solution->interface;
+    if(arbre->leftchild == NULL)
+        printf("wesh\n");
 	for(int i = 0; i < NBR_INTERFACES; i++)
 	{
 		for(int j = 0; j < 6; i++)
-			clean_intarray(&(interface[i].formation[j]));
+		{
+		    printf("coucou\n");
+		    fflush(stdout);
+		    printf("Tableau :\n");
+		    for(int p = 0; p < interface[i].formation[j].size; p++)
+            {
+                printf("%d ", interface[i].formation[j].int_array[p]);
+            }
+            printf("\n");
+		    clean_intarray(&(interface[i].formation[j]));
+		    printf("coucouapres\n");
+		    fflush(stdout);
+		}
+
 	}
-	free(arbre->solution);
-	free(arbre->leftchild);
-	free(arbre->rightchild);
+
+    free(arbre->solution);
 	free(arbre);
 }
-		
+
 int find_last_floor(Arbre arbre, Solution *pop, int index)
 {
 	if(arbre->leftchild == NULL)
 	{
-		memcpy(&pop[index], arbre->solution, sizeof(*(arbre->solution)));
+	    pop[index] = *(arbre->solution);
 		for(int i = 0; i < NBR_INTERFACES; i++)
 		{
 			for(int j = 0; j < 6; j++)
 			{
-				pop[index].interface[i].formation[j].int_array = malloc(arbre->solution->interface[i].formation[j].size * sizeof(int));
-				memcpy(pop[index].interface[i].formation[j].int_array, arbre->solution->interface[i].formation[j].int_array, sizeof(int) * arbre->solution->interface[i].formation[j].size);
+			    pop[index].interface[i].formation[j].int_array = malloc(arbre->solution->interface[i].formation[j].size * sizeof(int));
+			    for(int p = 0; p < arbre->solution->interface[i].formation[j].size; p++)
+                {
+                    pop[index].interface[i].formation[j].int_array[p] = arbre->solution->interface[i].formation[j].int_array[p];
+                }
 			}
 		}
 		index++;
@@ -66,18 +88,20 @@ int find_last_floor(Arbre arbre, Solution *pop, int index)
 	}
 	index = find_last_floor(arbre->leftchild, pop, index);
 	index = find_last_floor(arbre->rightchild, pop, index);
-	
-}		
+	return index;
+
+}
 
 void print_arbre(Arbre arbre)
 {
 	if(arbre == NULL)
 		return;
-	print_solution(*(arbre->solution));
-	printf("LEFT\n");
+    if(arbre == arbre->leftchild || arbre == arbre->rightchild || arbre->leftchild == arbre->rightchild)
+    {
+        printf("bordel de cul de merde\n");
+        fflush(stdout);
+    }
+	//print_solution(*(arbre->solution));
 	print_arbre(arbre->leftchild);
-	printf("FINLEFT\n");
-	printf("RIGHT\n");
 	print_arbre(arbre->rightchild);
-	printf("FINRIGHT\n");
 }
