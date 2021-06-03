@@ -44,7 +44,6 @@ void solve() {
     arbre->solution = malloc(sizeof(solution_initiale));
     arbre->solution = &solution_initiale;
     improve_solution(&arbre, DEPTH);
-    print_arbre(arbre);
     //Stockage du dernier étage de l'arbre dans le tableau population, et affichage des différents z
     int size = pow(2, DEPTH);
 
@@ -55,8 +54,8 @@ void solve() {
     find_last_floor(arbre, population, 0);
 
     //Affichage des solutions
-    //for(int i = 0; i < size; i++)
-    	//print_z(population[i]);
+    for(int i = 0; i < size; i++)
+    	print_z(population[i]);
 
     //delete_arbre(arbre);
     //free(population);
@@ -89,14 +88,14 @@ void improve_solution(Arbre *head, int depth) {
 	add_child(head, (*head)->solution, 0);
 	add_child(head, (*head)->solution, 1);
 
-        for(int i = 0; i < 10; i++)
-    		improve_standard_error((*head)->leftchild->solution);
+    for(int i = 0; i < 10; i++)
+        improve_standard_error((*head)->leftchild->solution);
 
-    	for(int j = 0; j < 30; j++)
-    		improve_penalties((*head)->rightchild->solution);
+    for(int j = 0; j < 30; j++)
+        improve_penalties((*head)->rightchild->solution);
 
-    	improve_solution(&((*head)->leftchild), depth-1);
-    	improve_solution(&((*head)->rightchild), depth-1);
+    improve_solution(&((*head)->leftchild), depth-1);
+    improve_solution(&((*head)->rightchild), depth-1);
 
 }
 
@@ -131,7 +130,7 @@ void improve_standard_error(Solution *sol) {
         	interface_receveuse_index--;
 	//Si aucune interface
 
-	while (interface_receveuse_index > 0 && check_compatibility(&(sol->interface[interface_receveuse_index]), creneau, temps_creneau) == -1)
+        while (interface_receveuse_index > 0 && check_compatibility(&(sol->interface[interface_receveuse_index]), creneau, temps_creneau) == -1)
         {
     		interface_receveuse_index--;
     		//Avant de vérifier la compatibilité de la nouvelle interface, on vérifie que sa distance parcourue est bien inférieure à celle de la moyenne
@@ -144,9 +143,6 @@ void improve_standard_error(Solution *sol) {
         if(interface_receveuse_index > 0)
 	{
 		//Mise à jour du tableau agenda et IntegerArray correspondants, passage au créneau suivant par suppression de la formation dans le tableau des formations (l'index 0 est donc remplacé par la formation suivante)
-		int temp = sol->interface[0].formation[jour].int_array[index];
-		//printf("coucou\n");
-		fflush(stdout);
 		add_element_intarray(&(sol->interface[interface_receveuse_index].formation[jour]), sol->interface[0].formation[jour].int_array[index]);
 		remove_element_intarray(&(sol->interface[0].formation[jour]), sol->interface[0].formation[jour].int_array[index]);
 		remove_creneau_agenda(sol->interface[0].agenda[jour], creneau, temps_creneau);

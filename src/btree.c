@@ -42,8 +42,7 @@ void delete_arbre(Arbre arbre)
 	delete_arbre(arbre->rightchild);
 
 	Interface *interface = arbre->solution->interface;
-    if(arbre->leftchild == NULL)
-        printf("wesh\n");
+
 	for(int i = 0; i < NBR_INTERFACES; i++)
 	{
 		for(int j = 0; j < 6; i++)
@@ -96,12 +95,7 @@ void print_arbre(Arbre arbre)
 {
 	if(arbre == NULL)
 		return;
-    if(arbre == arbre->leftchild || arbre == arbre->rightchild || arbre->leftchild == arbre->rightchild)
-    {
-        printf("bordel de cul de merde\n");
-        fflush(stdout);
-    }
-	//print_solution(*(arbre->solution));
+	print_solution(*(arbre->solution));
 	print_arbre(arbre->leftchild);
 	print_arbre(arbre->rightchild);
 }
