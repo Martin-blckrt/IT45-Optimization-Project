@@ -89,46 +89,11 @@ void solve() {
     	}
     }
     
-    /*arbre->solution = malloc(sizeof(Solution));
-    *(arbre->solution) = solution_initiale;
-    for(int i = 0; i < NBR_INTERFACES; i++)
-    {
-    	for(int j = 0; j < 6; j++)
-    	{
-    		init_intarray(&(arbre->solution->interface[i].formation[j]));
-    		if(solution_initiale.interface[i].formation[j].size > 0)
-    		{
-    			arbre->solution->interface[i].formation[j].size = solution_initiale.interface[i].formation[j].size;
-    			arbre->solution->interface[i].formation[j].int_array = malloc(sizeof(int) * solution_initiale.interface[i].formation[j].size);
-    			for(int p = 0; p < solution_initiale.interface[i].formation[j].size; p++)
-    			{
-    				arbre->solution->interface[i].formation[j].int_array[p] = solution_initiale.interface[i].formation[j].int_array[p];
-    			}
-    		}
-    	}
-    }*/
-    /*arbre->solution->interface[0].distance_totale = 3;
-    solution_initiale.interface[0].distance_totale = 2;
+    improve_solution(&arbre, DEPTH);
     
-    print_solution(solution_initiale);
-    print_solution(*(arbre->solution));
-    for(int i = 0; i < NBR_INTERFACES; i++)
-    {
-    	for(int j = 0; j < 6; j++)
-    	{
-    		clean_intarray(&(arbre->solution->interface[i].formation[j]));
-    		
-    		
-    	}
-    }*/
-    
-    //delete_arbre(arbre);
-    /*free(arbre->solution);
-    free(arbre);*/
-    
-    /*improve_solution(&arbre, DEPTH);
+    delete_arbre(arbre);
     //Stockage du dernier étage de l'arbre dans le tableau population, et affichage des différents z
-    int size = pow(2, DEPTH);
+    /*int size = pow(2, DEPTH);
 
 
     Solution *population = malloc(sizeof(Solution) *size);
@@ -140,11 +105,18 @@ void solve() {
     for(int i = 0; i < size; i++)
     	print_z(population[i]);
 	
+    delete_arbre(arbre);
+    for(int i = 0; i < size; i++)
+    {
+    	for(int j = 0; j < NBR_INTERFACES; j++)
+    	{
+    		for(int p = 0; p < 6; p++)
+    		{
+    			free(&population[i].interface[j].formation[p]);
+    		}
+    	}
+    }
     free(population);
-    printf("coucou\n");
-    fflush(stdout);
-    //delete_arbre(arbre);
-    
     //Free arbre, population*/
 }
 
@@ -155,17 +127,12 @@ void find_init_solution(Solution *solution_initiale) {
     qsort(formation, NBR_FORMATIONS, sizeof(formation[0]), compare_formations);
     qsort(solution_initiale->interface, NBR_INTERFACES, sizeof(solution_initiale->interface[0]), compare_interfaces);
     remplir_agendas(solution_initiale->interface);
-    /*for(int i = 0; i < NBR_INTERFACES; i++)
-    {
-    	for(int j = 0; j < 6; j++)
-    	{
-    		*/
     update_solution(solution_initiale);
-/*
+
     printf("****************************SOLUTION INITIALE********************\n");
     print_formation();
     print_solution(*solution_initiale);
-    printf("\n********************************************************************************************\n");*/
+    printf("\n********************************************************************************************\n");
 }
 
 void improve_solution(Arbre *head, int depth) {
@@ -295,7 +262,7 @@ void improve_penalties(Solution *sol) {
                         {
                             //Mise à jour du tableau agenda et IntegerArray correspondants
                             add_element_intarray(&(sol->interface[j].formation[k]), jour_formations[p]);
-                            remove_element_intarray(&(jour[k]), p);
+                            remove_element_intarray(&(jour[k]), jour_formations[p]);
                             remove_creneau_agenda(sol->interface[0].agenda[k], creneau, temps_creneau);
 
                             //Mise à jour des distances parcourues
