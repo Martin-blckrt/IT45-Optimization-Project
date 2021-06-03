@@ -3,7 +3,7 @@
 
 #include "solutions.h"
 
-void add_child(Arbre*, Solution *, int);
+void add_child(Arbre*, Solution, int);
 
 void delete_arbre(Arbre);
 

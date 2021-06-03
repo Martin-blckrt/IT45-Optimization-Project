@@ -4,7 +4,7 @@
 #include "btree.h"
 #include "constants.h"
 
-void add_child(Arbre *arbre, Solution *value, int side)
+void add_child(Arbre *arbre, Solution value, int side)
 {
 	if(arbre != NULL)
 	{
@@ -13,23 +13,12 @@ void add_child(Arbre *arbre, Solution *value, int side)
 			child = &((*arbre)->leftchild);
 		else
 			child = &((*arbre)->rightchild);
+		
 		(*child) = malloc(sizeof(Node));
 		(*child)->solution = NULL;
 		(*child)->leftchild = NULL;
 		(*child)->rightchild = NULL;
-		(*child)->solution = malloc(sizeof(*value));
-        *((*child)->solution) = *value;
-		for(int i = 0; i < NBR_INTERFACES; i++)
-		{
-			for(int j = 0; j < 6; j++)
-			{
-				(*child)->solution->interface[i].formation[j].int_array = malloc(value->interface[i].formation[j].size * sizeof(int));
-				for(int p = 0; p < value->interface[i].formation[j].size; p++)
-                {
-                    (*child)->solution->interface[i].formation[j].int_array[p] = value->interface[i].formation[j].int_array[p];
-                }
-			}
-		}
+		create_from_solution(&(*child)->solution, value);
 
 	}
 }
@@ -58,6 +47,7 @@ void delete_arbre(Arbre arbre)
 
 }
 
+
 int find_last_floor(Arbre arbre, Solution *pop, int index)
 {
 	if(arbre->leftchild == NULL)
@@ -67,10 +57,16 @@ int find_last_floor(Arbre arbre, Solution *pop, int index)
 		{
 			for(int j = 0; j < 6; j++)
 			{
-			    pop[index].interface[i].formation[j].int_array = malloc(arbre->solution->interface[i].formation[j].size * sizeof(int));
-			    for(int p = 0; p < arbre->solution->interface[i].formation[j].size; p++)
+				init_intarray(&(pop[index].interface[i].formation[j]));
+				if(arbre->solution->interface[i].formation[j].size > 0)
 				{
-		    			pop[index].interface[i].formation[j].int_array[p] = arbre->solution->interface[i].formation[j].int_array[p];
+					
+					pop[index].interface[i].formation[j].size = arbre->solution->interface[i].formation[j].size;
+			    		pop[index].interface[i].formation[j].int_array = malloc(arbre->solution->interface[i].formation[j].size * sizeof(int));
+			    		for(int p = 0; p < pop[index].interface[i].formation[j].size; p++)
+					{
+		    				pop[index].interface[i].formation[j].int_array[p] = arbre->solution->interface[i].formation[j].int_array[p];
+					}
 				}
 			}
 		}

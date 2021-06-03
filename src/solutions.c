@@ -91,9 +91,8 @@ void solve() {
     
     improve_solution(&arbre, DEPTH);
     
-    delete_arbre(arbre);
     //Stockage du dernier étage de l'arbre dans le tableau population, et affichage des différents z
-    /*int size = pow(2, DEPTH);
+    int size = pow(2, DEPTH);
 
 
     Solution *population = malloc(sizeof(Solution) *size);
@@ -103,7 +102,10 @@ void solve() {
 
     //Affichage des solutions
     for(int i = 0; i < size; i++)
+    {
     	print_z(population[i]);
+    }
+	
 	
     delete_arbre(arbre);
     for(int i = 0; i < size; i++)
@@ -112,12 +114,11 @@ void solve() {
     	{
     		for(int p = 0; p < 6; p++)
     		{
-    			free(&population[i].interface[j].formation[p]);
+    			clean_intarray(&(population[i].interface[j].formation[p]));
     		}
     	}
     }
     free(population);
-    //Free arbre, population*/
 }
 
 void find_init_solution(Solution *solution_initiale) {
@@ -139,12 +140,12 @@ void improve_solution(Arbre *head, int depth) {
 
 	if(depth == 0)
 	{
-		//print_z(*((*head)->solution));
+		print_z(*((*head)->solution));
 		return;
 	}
 	//Creer deux copies de la solution sol que l'on ajoute à l'arbre binaire
-	add_child(head, (*head)->solution, 0);
-	add_child(head, (*head)->solution, 1);
+	add_child(head, *((*head)->solution), 0);
+	add_child(head, *((*head)->solution), 1);
 
     for(int i = 0; i < 10; i++)
         improve_standard_error((*head)->leftchild->solution);
