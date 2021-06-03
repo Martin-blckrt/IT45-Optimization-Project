@@ -45,6 +45,32 @@ double compute_distance(double xa, double ya, double xb, double yb) {
 }
 
 
+void create_from_solution(Solution **sol1, Solution sol2)
+{
+	if(*sol1 == NULL)
+	{
+		*sol1 = malloc(sizeof(Solution));
+	}
+	**sol1 = sol2;
+	
+	for(int i = 0; i < NBR_INTERFACES; i++)
+	{
+		for(int j = 0; j < 6; j++)
+		{
+			init_intarray(&((*sol1)->interface[i].formation[j]));
+			if(sol2.interface[i].formation[j].size > 0)
+			{
+				(*sol1)->interface[i].formation[j].size = sol2.interface[i].formation[j].size;
+				(*sol1)->interface[i].formation[j].int_array = malloc(sizeof(int) * sol2.interface[i].formation[j].size);
+				for(int p = 0; p < (*sol1)->interface[i].formation[j].size; p++)
+				{
+					(*sol1)->interface[i].formation[j].int_array[p] =  sol2.interface[i].formation[j].int_array[p];
+				}
+			}
+		}
+	}
+
+}
 
 void solve() {
     Solution solution_initiale;
@@ -54,7 +80,16 @@ void solve() {
     arbre->leftchild = NULL;
     arbre->rightchild = NULL;
     arbre->solution = NULL;
-    arbre->solution = malloc(sizeof(Solution));
+    create_from_solution(&(arbre->solution), solution_initiale);
+    for(int i = 0; i < NBR_INTERFACES; i++)
+    {
+    	for(int j = 0; j < 6; j++)
+    	{
+    		clean_intarray(&(solution_initiale.interface[i].formation[j]));
+    	}
+    }
+    
+    /*arbre->solution = malloc(sizeof(Solution));
     *(arbre->solution) = solution_initiale;
     for(int i = 0; i < NBR_INTERFACES; i++)
     {
@@ -71,13 +106,13 @@ void solve() {
     			}
     		}
     	}
-    }
-    arbre->solution->interface[0].distance_totale = 3;
+    }*/
+    /*arbre->solution->interface[0].distance_totale = 3;
     solution_initiale.interface[0].distance_totale = 2;
     
     print_solution(solution_initiale);
     print_solution(*(arbre->solution));
-   /* for(int i = 0; i < NBR_INTERFACES; i++)
+    for(int i = 0; i < NBR_INTERFACES; i++)
     {
     	for(int j = 0; j < 6; j++)
     	{
@@ -86,16 +121,10 @@ void solve() {
     		
     	}
     }*/
-    for(int i = 0; i < NBR_INTERFACES; i++)
-    {
-    	for(int j = 0; j < 6; j++)
-    	{
-    		clean_intarray(&(solution_initiale.interface[i].formation[j]));
-    	}
-    }
-    delete_arbre(arbre);
-    //free(arbre->solution);
-    //free(arbre);
+    
+    //delete_arbre(arbre);
+    /*free(arbre->solution);
+    free(arbre);*/
     
     /*improve_solution(&arbre, DEPTH);
     //Stockage du dernier étage de l'arbre dans le tableau population, et affichage des différents z
