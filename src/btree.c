@@ -41,45 +41,39 @@ void delete_arbre(Arbre arbre)
 	delete_arbre(arbre->leftchild);
 	delete_arbre(arbre->rightchild);
 
-	Interface *interface = arbre->solution->interface;
+	//Interface *interface = arbre->solution->interface;
 
 	for(int i = 0; i < NBR_INTERFACES; i++)
 	{
 		for(int j = 0; j < 6; i++)
 		{
-		    printf("coucou\n");
-		    fflush(stdout);
-		    printf("Tableau :\n");
-		    for(int p = 0; p < interface[i].formation[j].size; p++)
-            {
-                printf("%d ", interface[i].formation[j].int_array[p]);
-            }
-            printf("\n");
-		    clean_intarray(&(interface[i].formation[j]));
-		    printf("coucouapres\n");
-		    fflush(stdout);
+
+		    //clean_intarray(&(interface[i].formation[j]));
+
 		}
 
 	}
-
-    free(arbre->solution);
-	free(arbre);
+	if(arbre->solution != NULL)
+	{
+		free(arbre->solution);
+		free(arbre);
+	}
 }
 
 int find_last_floor(Arbre arbre, Solution *pop, int index)
 {
 	if(arbre->leftchild == NULL)
 	{
-	    pop[index] = *(arbre->solution);
+		pop[index] = *(arbre->solution);
 		for(int i = 0; i < NBR_INTERFACES; i++)
 		{
 			for(int j = 0; j < 6; j++)
 			{
 			    pop[index].interface[i].formation[j].int_array = malloc(arbre->solution->interface[i].formation[j].size * sizeof(int));
 			    for(int p = 0; p < arbre->solution->interface[i].formation[j].size; p++)
-                {
-                    pop[index].interface[i].formation[j].int_array[p] = arbre->solution->interface[i].formation[j].int_array[p];
-                }
+				{
+		    			pop[index].interface[i].formation[j].int_array[p] = arbre->solution->interface[i].formation[j].int_array[p];
+				}
 			}
 		}
 		index++;

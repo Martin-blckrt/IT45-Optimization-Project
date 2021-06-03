@@ -38,7 +38,17 @@ double compute_distance(double xa, double ya, double xb, double yb) {
 void solve() {
     Solution solution_initiale;
     find_init_solution(&solution_initiale);
-    Arbre arbre = malloc(sizeof(Node));
+    
+    for(int i = 0; i < NBR_INTERFACES; i++)
+    {
+    	for(int j = 0; j < 6; j++)
+    	{
+    		clean_intarray(&(solution_initiale.interface[i].formation[j]));
+    	}
+    }
+
+    
+    /*Arbre arbre = malloc(sizeof(Node));
     arbre->leftchild = NULL;
     arbre->rightchild = NULL;
     arbre->solution = malloc(sizeof(solution_initiale));
@@ -56,10 +66,13 @@ void solve() {
     //Affichage des solutions
     for(int i = 0; i < size; i++)
     	print_z(population[i]);
-
+	
+    free(population);
+    printf("coucou\n");
+    fflush(stdout);
     //delete_arbre(arbre);
-    //free(population);
-    //Free arbre, population
+    
+    //Free arbre, population*/
 }
 
 void find_init_solution(Solution *solution_initiale) {
@@ -69,12 +82,17 @@ void find_init_solution(Solution *solution_initiale) {
     qsort(formation, NBR_FORMATIONS, sizeof(formation[0]), compare_formations);
     qsort(solution_initiale->interface, NBR_INTERFACES, sizeof(solution_initiale->interface[0]), compare_interfaces);
     remplir_agendas(solution_initiale->interface);
-    update_solution(solution_initiale);
+    /*for(int i = 0; i < NBR_INTERFACES; i++)
+    {
+    	for(int j = 0; j < 6; j++)
+    	{
+    		*/
+    /*update_solution(solution_initiale);
 
     printf("****************************SOLUTION INITIALE********************\n");
     print_formation();
     print_solution(*solution_initiale);
-    printf("\n********************************************************************************************\n");
+    printf("\n********************************************************************************************\n");*/
 }
 
 void improve_solution(Arbre *head, int depth) {

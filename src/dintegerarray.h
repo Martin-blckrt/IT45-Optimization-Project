@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 typedef struct {
-    size_t capacity;
     size_t size;
     int* int_array;
 }IntegerArray;

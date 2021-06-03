@@ -1,2 +1,20 @@
-executable: main.c dintegerarray.c solutions.c donnees.c tri.c interface.c btree.c
-	gcc -o executable main.c dintegerarray.c solutions.c donnees.c tri.c interface.c btree.c -lm
+CC=gcc
+CFLAGS=-Wall -g
+DEPS = dintegerarray.h solutions.h constants.h tri.h interface.h btree.h
+ODIR = obj
+LIBS = -lm
+
+_OBJ=main.o dintegerarray.o solutions.o donnees.o tri.o interface.o btree.o
+OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
+
+$(ODIR)/%.o: %.c $(DEPS)
+	$(CC) -c -g -o $@ $< $(CFLAGS)
+	
+executable: $(OBJ)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+	
+.PHONY: clean
+
+clean:
+	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~
+	
