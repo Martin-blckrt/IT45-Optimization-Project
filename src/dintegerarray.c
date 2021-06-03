@@ -42,6 +42,19 @@ void remove_element_intarray(IntegerArray* a, int value)
 
 }
 
+void duplicate_intarrays(IntegerArray *array1, IntegerArray array2)
+{
+	init_intarray(array1);
+	if(array2.size > 0)
+	{
+		array1->size = array2.size;
+		array1->int_array = malloc(sizeof(int) * array2.size);
+		for(int p = 0; p < array1->size; p++)
+		{
+			array1->int_array[p] =  array2.int_array[p];
+		}
+	}
+}
 void clean_intarray(IntegerArray* a)
 {
 	if(a->int_array != NULL)

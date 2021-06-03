@@ -53,24 +53,11 @@ void create_from_solution(Solution **sol1, Solution sol2)
 	}
 	**sol1 = sol2;
 	
-	for(int i = 0; i < NBR_INTERFACES; i++)
-	{
-		for(int j = 0; j < 6; j++)
-		{
-			init_intarray(&((*sol1)->interface[i].formation[j]));
-			if(sol2.interface[i].formation[j].size > 0)
-			{
-				(*sol1)->interface[i].formation[j].size = sol2.interface[i].formation[j].size;
-				(*sol1)->interface[i].formation[j].int_array = malloc(sizeof(int) * sol2.interface[i].formation[j].size);
-				for(int p = 0; p < (*sol1)->interface[i].formation[j].size; p++)
-				{
-					(*sol1)->interface[i].formation[j].int_array[p] =  sol2.interface[i].formation[j].int_array[p];
-				}
-			}
-		}
-	}
+	duplicate_formations((*sol1)->interface, sol2.interface);
 
 }
+
+
 
 void solve() {
     Solution solution_initiale;
@@ -106,7 +93,7 @@ void solve() {
     	print_z(population[i]);
     }
 	
-	
+	//Free resources
     delete_arbre(arbre);
     for(int i = 0; i < size; i++)
     {

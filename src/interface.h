@@ -36,6 +36,8 @@ void print_interface(Interface);
 
 int poids_interface(const Interface *);
 
+void duplicate_formations(Interface *, Interface *);
+
 int compute_penalty_interface(Interface);
 
 #endif

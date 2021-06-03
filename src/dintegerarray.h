@@ -14,6 +14,8 @@ void add_element_intarray(IntegerArray*, int);
 
 void remove_element_intarray(IntegerArray*, int);
 
+void duplicate_intarrays(IntegerArray *, IntegerArray);
+
 void clean_intarray(IntegerArray*);
 
 #endif

@@ -53,23 +53,7 @@ int find_last_floor(Arbre arbre, Solution *pop, int index)
 	if(arbre->leftchild == NULL)
 	{
 		pop[index] = *(arbre->solution);
-		for(int i = 0; i < NBR_INTERFACES; i++)
-		{
-			for(int j = 0; j < 6; j++)
-			{
-				init_intarray(&(pop[index].interface[i].formation[j]));
-				if(arbre->solution->interface[i].formation[j].size > 0)
-				{
-					
-					pop[index].interface[i].formation[j].size = arbre->solution->interface[i].formation[j].size;
-			    		pop[index].interface[i].formation[j].int_array = malloc(arbre->solution->interface[i].formation[j].size * sizeof(int));
-			    		for(int p = 0; p < pop[index].interface[i].formation[j].size; p++)
-					{
-		    				pop[index].interface[i].formation[j].int_array[p] = arbre->solution->interface[i].formation[j].int_array[p];
-					}
-				}
-			}
-		}
+		duplicate_formations(pop[index].interface, arbre->solution->interface);
 		index++;
 		return index;
 	}

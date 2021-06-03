@@ -224,6 +224,16 @@ int compute_penalty_interface(Interface interface)
     return penalty;
 }
 
+void duplicate_formations(Interface *interface, Interface *interface2)
+{
+	for(int i = 0; i < NBR_INTERFACES; i++)
+	{
+		for(int j = 0; j < 6; j++)
+			duplicate_intarrays(&(interface[i].formation[j]), interface2[i].formation[j]);
+		
+	}
+}
+
 void print_interface(Interface interface)
 {
         printf("Competences : %d %d \nSpecialites : ", interface.competence[0], interface.competence[1]);
