@@ -24,6 +24,8 @@ typedef struct node
 
 typedef Node *Arbre;
  
+void create_from_solution(Solution **, Solution);
+
 int get_champs_formation(int, int);
 
 void solve();

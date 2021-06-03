@@ -37,27 +37,25 @@ void add_child(Arbre *arbre, Solution *value, int side)
 void delete_arbre(Arbre arbre)
 {
 	if(arbre == NULL)
+	{
 		return;
+	}
 	delete_arbre(arbre->leftchild);
 	delete_arbre(arbre->rightchild);
-
-	//Interface *interface = arbre->solution->interface;
-
 	for(int i = 0; i < NBR_INTERFACES; i++)
 	{
-		for(int j = 0; j < 6; i++)
+		for(int j = 0; j < 6; j++)
 		{
 
-		    //clean_intarray(&(interface[i].formation[j]));
-
+		    clean_intarray(&arbre->solution->interface[i].formation[j]);
 		}
 
 	}
-	if(arbre->solution != NULL)
-	{
-		free(arbre->solution);
-		free(arbre);
-	}
+
+
+	free(arbre->solution);
+	free(arbre);
+
 }
 
 int find_last_floor(Arbre arbre, Solution *pop, int index)

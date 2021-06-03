@@ -4,6 +4,7 @@
 
 void init_intarray(IntegerArray* array)
 {
+    
     array->int_array = NULL;
     array->size = 0;
 }
@@ -36,6 +37,7 @@ void remove_element_intarray(IntegerArray* a, int value)
 		a->int_array[a->size - 1] = 0;
 		a->size--;
 	}
+	
     }
 
 }
@@ -46,5 +48,7 @@ void clean_intarray(IntegerArray* a)
 	{
 		free(a->int_array);
 		a->int_array = NULL;
+		a->size = 0;
 	}
+
 }
