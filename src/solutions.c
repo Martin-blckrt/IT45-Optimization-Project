@@ -86,12 +86,20 @@ void solve() {
 
 
     find_last_floor(arbre, population, 0);
-
+    
+    
+    
     //Affichage des solutions
     for(int i = 0; i < size; i++)
     {
     	print_z(population[i]);
     }
+    
+    Solution *best_solution;
+    
+   best_solution = find_best_solution(population, size);
+   
+   print_solution(*best_solution);
 	
 	//Free resources
     delete_arbre(arbre);
@@ -275,7 +283,20 @@ void improve_penalties(Solution *sol) {
     update_solution(sol);
 }
 
-
+Solution* find_best_solution(Solution*pop, int size)
+{
+	double min_z = INFINITY;
+	int index = 0;
+	for(int i = 0; i < size-1; i++)
+	{
+		if(pop[i].z < min_z)
+		{
+			min_z = pop[i].z;
+			index = i;
+		}
+	}
+	return &pop[index];
+}
 void update_solution(Solution *sol) {
     compute_distances_interfaces(sol);
     sol->avg_distance = compute_avg_distance(*sol);

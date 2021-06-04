@@ -38,6 +38,8 @@ void improve_standard_error(Solution*);
 
 void improve_penalties(Solution *);
 
+Solution* find_best_solution(Solution *, int);
+
 void update_solution(Solution *);
 
 double compute_distance(double, double, double, double);
