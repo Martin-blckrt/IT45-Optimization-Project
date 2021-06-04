@@ -30,6 +30,8 @@ int get_champs_formation(int, int);
 
 void solve();
 
+void croiser(Solution *, Solution *, Solution *, int);
+
 void find_init_solution(Solution *);
 
 void improve_solution(Arbre *, int);
@@ -38,7 +40,7 @@ void improve_standard_error(Solution*);
 
 void improve_penalties(Solution *);
 
-void find_best_solution(Solution **, Solution *, int);
+void find_best_solution(Solution *, Solution *, int);
 
 void update_solution(Solution *);
 

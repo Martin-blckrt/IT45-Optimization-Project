@@ -85,17 +85,23 @@ void solve() {
     for(int i = 0; i < size; i++)
     {
     	qsort(population[i].interface, NBR_INTERFACES, sizeof(Interface), compare_interfaces_ID);
-    	print_z(population[i]);
+    	//print_z(population[i]);
     }
     
-   Solution *best_solution = NULL;
+   Solution best_solution;
    find_best_solution(&best_solution, population, size);
    
    printf("***********************************MEILLEURE SOLUTION AVANT GENETIQUE***************************\n");
-   print_solution(*best_solution);
-   printf("*********************************************************************\n");
+   print_solution(best_solution);
+   printf("*************************************************************************************************\n");
    
+   //print_solution(population[0]);
+   //print_solution(population[1]);
    
+   croiser(&population[0], &population[1], population, 0);
+   
+   //print_solution(population[0]);
+   //print_solution(population[1]);
    
    //Free resources
     delete_arbre(arbre);
@@ -107,8 +113,25 @@ void solve() {
     }
     free(population);
     
-    delete_solution(best_solution);
+    delete_solution_intarrays(best_solution.interface);
 }
+
+void croiser(Solution *sol1, Solution *sol2, Solution *pop, int index)
+{
+	//Création des deux solutions filles
+	Solution temp = *sol1;
+	Solution temp2 = *sol2;	
+	duplicate_formations(temp.interface, sol1->interface);
+	duplicate_formations(temp2.interface, sol2->interface);
+	
+	
+	//Remplacement des anciennes solutions
+	delete_solution_intarrays(sol1->interface);
+	delete_solution_intarrays(sol2->interface);
+	pop[index] = temp;
+	pop[index+1] = temp2;
+}
+
 
 void find_init_solution(Solution *solution_initiale) {
     init_distance_matrix();
@@ -274,7 +297,7 @@ void improve_penalties(Solution *sol) {
     update_solution(sol);
 }
 
-void find_best_solution(Solution **best_sol, Solution*pop, int size)
+void find_best_solution(Solution *best_sol, Solution*pop, int size)
 {
 	double min_z = INFINITY;
 	int index = 0;
@@ -286,7 +309,8 @@ void find_best_solution(Solution **best_sol, Solution*pop, int size)
 			index = i;
 		}
 	}
-	create_from_solution(best_sol, pop[index]); 
+	*best_sol = pop[index];
+	duplicate_formations(best_sol->interface, pop[index].interface);
 	
 }
 
