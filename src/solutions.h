@@ -38,7 +38,7 @@ void improve_standard_error(Solution*);
 
 void improve_penalties(Solution *);
 
-Solution* find_best_solution(Solution *, int);
+void find_best_solution(Solution **, Solution *, int);
 
 void update_solution(Solution *);
 
@@ -65,5 +65,9 @@ void print_interfaces(Interface*);
 void print_solution(Solution);
 
 void print_distances();
+
+void delete_solution(Solution *);
+
+void delete_solution_intarrays(Interface *);
 
 #endif

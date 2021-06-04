@@ -151,6 +151,7 @@ void init_tableau_interfaces(Interface *infos_interface)
 {
 	for(int i = 0; i < NBR_INTERFACES; i++)
 	{
+		infos_interface[i].id = i;
 		for(int j = 0; j < 2; j++)
 			infos_interface[i].competence[j] = competences_interfaces[i][j];
 		for(int j = 0; j < NBR_SPECIALITES; j++)
@@ -236,7 +237,7 @@ void duplicate_formations(Interface *interface, Interface *interface2)
 
 void print_interface(Interface interface)
 {
-        printf("Competences : %d %d \nSpecialites : ", interface.competence[0], interface.competence[1]);
+        printf("ID : %d\nCompetences : %d %d \nSpecialites : ", interface.id, interface.competence[0], interface.competence[1]);
         for(int j = 0; j < NBR_SPECIALITES; j++)
         {
         	printf("%d ", interface.specialite[j]);

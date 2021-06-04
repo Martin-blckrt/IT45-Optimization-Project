@@ -68,13 +68,7 @@ void solve() {
     arbre->rightchild = NULL;
     arbre->solution = NULL;
     create_from_solution(&(arbre->solution), solution_initiale);
-    for(int i = 0; i < NBR_INTERFACES; i++)
-    {
-    	for(int j = 0; j < 6; j++)
-    	{
-    		clean_intarray(&(solution_initiale.interface[i].formation[j]));
-    	}
-    }
+    delete_solution_intarrays(solution_initiale.interface);
     
     improve_solution(&arbre, DEPTH);
     
@@ -87,33 +81,33 @@ void solve() {
 
     find_last_floor(arbre, population, 0);
     
-    
-    
     //Affichage des solutions
     for(int i = 0; i < size; i++)
     {
+    	qsort(population[i].interface, NBR_INTERFACES, sizeof(Interface), compare_interfaces_ID);
     	print_z(population[i]);
     }
     
-    Solution *best_solution;
-    
-   best_solution = find_best_solution(population, size);
+   Solution *best_solution = NULL;
+   find_best_solution(&best_solution, population, size);
    
+   printf("***********************************MEILLEURE SOLUTION AVANT GENETIQUE***************************\n");
    print_solution(*best_solution);
-	
-	//Free resources
+   printf("*********************************************************************\n");
+   
+   
+   
+   //Free resources
     delete_arbre(arbre);
+    
+    
     for(int i = 0; i < size; i++)
     {
-    	for(int j = 0; j < NBR_INTERFACES; j++)
-    	{
-    		for(int p = 0; p < 6; p++)
-    		{
-    			clean_intarray(&(population[i].interface[j].formation[p]));
-    		}
-    	}
+    	delete_solution_intarrays(population[i].interface);
     }
     free(population);
+    
+    delete_solution(best_solution);
 }
 
 void find_init_solution(Solution *solution_initiale) {
@@ -135,7 +129,7 @@ void improve_solution(Arbre *head, int depth) {
 
 	if(depth == 0)
 	{
-		print_z(*((*head)->solution));
+		//print_z(*((*head)->solution));
 		return;
 	}
 	//Creer deux copies de la solution sol que l'on ajoute à l'arbre binaire
@@ -182,7 +176,6 @@ void improve_standard_error(Solution *sol) {
         int temps_creneau = creneau[5] - creneau[4];
         if(sol->interface[interface_receveuse_index].distance_totale > sol->avg_distance)
         	interface_receveuse_index--;
-	//Si aucune interface
 
         while (interface_receveuse_index > 0 && check_compatibility(&(sol->interface[interface_receveuse_index]), creneau, temps_creneau) == -1)
         {
@@ -206,9 +199,7 @@ void improve_standard_error(Solution *sol) {
 
 	}
 	else
-		{
-		    //printf("TEST\n");
-            index++;}
+            index++;
 
 
 	interface_receveuse_index = NBR_INTERFACES - 1;
@@ -283,7 +274,7 @@ void improve_penalties(Solution *sol) {
     update_solution(sol);
 }
 
-Solution* find_best_solution(Solution*pop, int size)
+void find_best_solution(Solution **best_sol, Solution*pop, int size)
 {
 	double min_z = INFINITY;
 	int index = 0;
@@ -295,8 +286,10 @@ Solution* find_best_solution(Solution*pop, int size)
 			index = i;
 		}
 	}
-	return &pop[index];
+	create_from_solution(best_sol, pop[index]); 
+	
 }
+
 void update_solution(Solution *sol) {
     compute_distances_interfaces(sol);
     sol->avg_distance = compute_avg_distance(*sol);
@@ -406,4 +399,20 @@ void print_solution(Solution solution) {
 
 }
 
+void delete_solution(Solution *sol)
+{
+	delete_solution_intarrays(sol->interface);
+	free(sol);
+}
+
+void delete_solution_intarrays(Interface *interface)
+{
+	for(int i = 0; i < NBR_INTERFACES; i++)
+	{
+		for(int j = 0; j < 6; j++)
+		{
+			clean_intarray(&interface[i].formation[j]);
+		}
+	}
+}
 

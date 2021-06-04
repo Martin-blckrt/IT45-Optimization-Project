@@ -31,18 +31,7 @@ void delete_arbre(Arbre arbre)
 	}
 	delete_arbre(arbre->leftchild);
 	delete_arbre(arbre->rightchild);
-	for(int i = 0; i < NBR_INTERFACES; i++)
-	{
-		for(int j = 0; j < 6; j++)
-		{
-
-		    clean_intarray(&arbre->solution->interface[i].formation[j]);
-		}
-
-	}
-
-
-	free(arbre->solution);
+	delete_solution(arbre->solution);
 	free(arbre);
 
 }
