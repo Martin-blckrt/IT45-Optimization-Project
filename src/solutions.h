@@ -32,7 +32,7 @@ void solve();
 
 void croiser(Solution *, Solution *, Solution *, int, int);
 
-void add_creneau_croiser(Interface *, Interface, IntegerArray *, int, int);
+void add_creneau_croiser(Interface **, int, IntegerArray *, int, int);
 
 void find_init_solution(Solution *);
 
