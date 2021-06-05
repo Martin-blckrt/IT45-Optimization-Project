@@ -9,7 +9,7 @@
 #define DEPTH 8
 #define INFLUENCE_STANDARD 10
 #define INFLUENCE_PENALTY 30
-#define ITERATIONS_GENETIQUE 1000
+#define ITERATIONS_GENETIQUE 100
 
 extern int formation[NBR_FORMATIONS][6];
 extern float coord[NBR_NODES][2];

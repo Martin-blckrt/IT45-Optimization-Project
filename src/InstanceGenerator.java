@@ -357,7 +357,7 @@ public class InstanceGenerator {
     {
     	try
     	{
-    		textFileOutput.write("//Variables globales utilisees dans le reste du programme\ndouble distances[NBR_SPECIALITES + 1][NBR_SPECIALITES + 1];\nInterface infos_interface[NBR_INTERFACES];\n");
+    		textFileOutput.write("//Variables globales utilisees dans le reste du programme\ndouble distances[NBR_SPECIALITES + 1][NBR_SPECIALITES + 1];\n");
     } catch (IOException ex) {
     	Logger.getLogger(InstanceGenerator.class.getName()).log(Level.SEVERE, null, ex);
     }
