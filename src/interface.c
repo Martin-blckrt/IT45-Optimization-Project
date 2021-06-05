@@ -138,7 +138,8 @@ int check_compatibility(Interface *interface, int *creneau, int temps_creneau)
         }
         return -1;
     }
-
+	
+	//Si tous les checks ont été passé, on attribue directement le créneau à l'interface
     for(int i = 0; i < temps_creneau; i++)
         {
             interface->agenda[jour_sem][creneau[4] - 6 + i] = 1;
@@ -147,15 +148,21 @@ int check_compatibility(Interface *interface, int *creneau, int temps_creneau)
     return 0;
 }
 
+//Initialise l'ensemble des interfaces de la solution initiale en fonction des valeurs du générateur d'instance, initialise également les autres champs à 0
 void init_tableau_interfaces(Interface *infos_interface)
 {
 	for(int i = 0; i < NBR_INTERFACES; i++)
 	{
+		//identificateur de l'interface
 		infos_interface[i].id = i;
+		
+		//Récupération des données de l'instance
 		for(int j = 0; j < 2; j++)
 			infos_interface[i].competence[j] = competences_interfaces[i][j];
 		for(int j = 0; j < NBR_SPECIALITES; j++)
 			infos_interface[i].specialite[j] = specialite_interfaces[i][j];
+			
+		//Initialisation du reste
 		for(int j = 0; j < 6; j++)
 		{
 			init_intarray(&(infos_interface[i].formation[j]));
@@ -167,26 +174,29 @@ void init_tableau_interfaces(Interface *infos_interface)
 	}
 }
 
+//Calcule la distance totale parcourue dans la journée de l'interface
 double compute_employee_distance(Interface interface)
 {
     IntegerArray* jour = interface.formation;
     double distance = 0;
     for(int k = 0; k < 6; k++)
     {
-    	//printf("Jour %d :\n", k+1);
     	int *jour_formations = jour[k].int_array;
+    	
+    	//Si il n'y a pas de formation ce jour-ci, on passe au jour suivant
     	if(jour[k].size != 0)
     	{
-    		//printf("SESSAD -> specialite %d : %f\n", get_champs_formation(jour_formations[0], 1), distances[0][get_champs_formation(jour_formations[0], 1) + 1]);
+    		//distance SESSAD -> premier centre
     		distance += distances[0][get_champs_formation(jour_formations[0], 1) + 1];
     		int j = 0;
+    		
+    		//Distances entre les différents centres de formation
     		for(j = 0; j < jour[k].size - 1; j++)
     		{
-    		//printf("distance : specialite %d -> specialite %d : %f\n", get_champs_formation(jour_formations[j], 1), get_champs_formation(jour_formations[j+1], 1), distances[get_champs_formation(jour_formations[j], 1) + 1][get_champs_formation(jour_formations[j+1], 1) + 1]);
     			distance += distances[get_champs_formation(jour_formations[j], 1) + 1][get_champs_formation(jour_formations[j+1], 1) + 1];
     		}
     		
-    		//printf("distance specialite %d -> SESSAD : %f\n", get_champs_formation(jour_formations[j], 1),  distances[get_champs_formation(jour_formations[j], 1) + 1][0]);
+    		//distance dernier centre de formation de la journée -> SESSAD
     		distance += distances[get_champs_formation(jour_formations[j], 1) + 1][0];
     	}
     }
@@ -206,7 +216,7 @@ int poids_interface(const Interface *interface)
     return poids;
 }
 
-
+//Calcule les pénalités associées à une interface
 int compute_penalty_interface(Interface interface)
 {
     int penalty = 0;
@@ -225,6 +235,7 @@ int compute_penalty_interface(Interface interface)
     return penalty;
 }
 
+//Duplique les tableaux dynamique (=formations attribuées) d'un ensemble d'interface vers un autre ensemble
 void duplicate_formations(Interface *interface, Interface *interface2)
 {
 	for(int i = 0; i < NBR_INTERFACES; i++)
@@ -233,6 +244,41 @@ void duplicate_formations(Interface *interface, Interface *interface2)
 			duplicate_intarrays(&(interface[i].formation[j]), interface2[i].formation[j]);
 		
 	}
+}
+
+//Utilisé pour le croisement, permet de vérifier que cette interface est élligible à un croisement
+int has_formation(Interface interface)
+{
+	for(int i = 0; i < 6; i++)
+	{
+		if(interface.formation[i].size != 0)
+			return 0;
+	}
+	return -1;
+}
+
+//Recherche si la formation value est attribuée autre part qu'à l'interface index
+int delete_doublons(int value, int index, Interface *interface)
+{
+	for(int i = 0; i < NBR_INTERFACES; i++)
+	{
+		for(int j = 0; j < 6; j++)
+		{
+			for(int p = 0; p < interface[i].formation[j].size; p++)
+			{
+				//Si on trouve une valeure à un i autre que index, alors il y a doublon
+				if(interface[i].formation[j].int_array[p] == value && i != index)
+				{
+					//Doublon trouvé, suppression
+					remove_element_intarray(&interface[i].formation[j], value);
+					int *creneau = formation[value];
+					remove_creneau_agenda(interface[i].agenda[j], creneau, creneau[5] - creneau[4]);
+					return -1; //Il ne peut y avoir qu'un doublon, pas la peine de continuer
+				}
+			}
+		}
+	}
+	return 0;
 }
 
 void print_interface(Interface interface)

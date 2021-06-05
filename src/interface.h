@@ -42,4 +42,8 @@ void duplicate_formations(Interface *, Interface *);
 
 int compute_penalty_interface(Interface);
 
+int has_formation(Interface);
+
+int delete_doublons(int, int, Interface *);
+
 #endif

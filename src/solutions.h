@@ -30,7 +30,9 @@ int get_champs_formation(int, int);
 
 void solve();
 
-void croiser(Solution *, Solution *, Solution *, int);
+void croiser(Solution *, Solution *, Solution *, int, int);
+
+void add_creneau_croiser(Interface *, Interface, IntegerArray *, int, int);
 
 void find_init_solution(Solution *);
 
