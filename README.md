@@ -11,7 +11,7 @@ Ensuite, le fichier interface.c contient toutes les fonctions relatives aux mani
 Finalement, deux fichiers .c btree.c, dintegerarray.c qui sont de simples implémentations de structures de données (arbre binaire
 et tableau dynamique) ainsi qu'un fichier tri.c qui contient nos différents critères de tri.
 
-##Lancer le projet :
+Lancer le projet :
 -Pour générer une nouvelle instance, aller dans le fichier src et taper la commande
 javac InstaceGenerator.java
 java InstanceGenerator
@@ -22,7 +22,7 @@ puis ./executable
 Pour modifier le compilateur, les flags ou autre, voir le makefile
 
 
-##Paramétrer le projet : 
+Paramétrer le projet : 
 Modifier les constantes préprocesseur dans le fichier solutions.c :
 DEPTH : profondeur de l'arbre de recherche de solution à l'aide de la première heuristique
 INFLUENCE_STANDARD : influence la direction que prend l'arbre (plus la valeur est haute, plus on améliore l'écart type au profit 
