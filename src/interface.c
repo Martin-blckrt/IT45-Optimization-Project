@@ -153,9 +153,6 @@ void init_tableau_interfaces(Interface *infos_interface)
 {
 	for(int i = 0; i < NBR_INTERFACES; i++)
 	{
-		//identificateur de l'interface
-		infos_interface[i].id = i;
-		
 		//Récupération des données de l'instance
 		for(int j = 0; j < 2; j++)
 			infos_interface[i].competence[j] = competences_interfaces[i][j];
@@ -283,7 +280,7 @@ int delete_doublons(int value, int index, Interface *interface)
 
 void print_interface(Interface interface)
 {
-        printf("ID : %d\nCompetences : %d %d \nSpecialites : ", interface.id, interface.competence[0], interface.competence[1]);
+        printf("Competences : %d %d \nSpecialites : ", interface.competence[0], interface.competence[1]);
         for(int j = 0; j < NBR_SPECIALITES; j++)
         {
         	printf("%d ", interface.specialite[j]);

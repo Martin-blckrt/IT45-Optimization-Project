@@ -6,7 +6,6 @@
 
 typedef struct
 {
-	int id;
 	
 	int competence[2];
 	int specialite[NBR_SPECIALITES];

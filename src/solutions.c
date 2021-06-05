@@ -90,32 +90,31 @@ void solve() {
     //Affichage des solutions et tri en fonction de l'ID
     for(int i = 0; i < size; i++)
     {
-    	qsort(population[i].interface, NBR_INTERFACES, sizeof(Interface), compare_interfaces_ID);
     	//print_solution(population[i]);
-    	print_z(population[i]);
+    	//print_z(population[i]);
     }
     
-   Solution best_solution;
-   find_best_solution(&best_solution, population, size);
+   Solution *best_solution = malloc(sizeof(Solution));
+   best_solution->z = INFINITY;
+   find_best_solution(best_solution, population, size);
    
    printf("***********************************MEILLEURE SOLUTION AVANT GENETIQUE***************************\n");
-   print_solution(best_solution);
+   print_z(*best_solution);
    printf("*************************************************************************************************\n");
-   
+	
    //Itérations de l'algorithme génétique
-   for(int i = 0; i < 1000; i++)
+   for(int i = 0; i < 100; i++)
    {
 	   for(int j = 0; j < size/2; j++)
 	   {
 	   	//Comprend le choix des interfaces à croiser, le croisement et les réparations des solutions filles
 	   	croiser(&population[j], &population[size-1-j], population, j, size);
 	   }
+	
 	//Actualisation de la meilleure solution
-   	delete_solution_intarrays(best_solution.interface);
-   	find_best_solution(&best_solution, population, size);
-   	print_z(best_solution);
+   	find_best_solution(best_solution, population, size);
+   	print_z(*best_solution);
    }
-   
    //Free resources
     delete_arbre(arbre);
     
@@ -125,7 +124,8 @@ void solve() {
     }
     free(population);
     
-    delete_solution_intarrays(best_solution.interface);
+    delete_solution_intarrays(best_solution->interface);
+    free(best_solution);
 }
 
 
@@ -179,7 +179,6 @@ le moins de distance parcourue, jusqu'à arriver à la valeure moyenne des dista
 void improve_standard_error(Solution *sol) {
 
     qsort(sol->interface, NBR_INTERFACES, sizeof(sol->interface[0]), compare_interfaces_distance);
-    //print_solution(*sol);
     int index = 0;
     int jour = 0;
     int interface_receveuse_index = NBR_INTERFACES - 1;
@@ -432,8 +431,9 @@ void croiser(Solution *sol1, Solution *sol2, Solution *pop, int index, int size)
 		    for(int i = 0; i < 6; i++)
 		    	qsort(temp.interface[p].formation[i].int_array, temp.interface[p].formation[i].size, sizeof(int), compare_agenda);
     		}
-    		pop[index] = temp;
     		update_solution(&temp);
+    		pop[index] = temp;
+    		duplicate_formations(pop[index].interface, temp2.interface);
 	}
 	
 	if(check_compatibility_temp2 == -1)
@@ -447,10 +447,11 @@ void croiser(Solution *sol1, Solution *sol2, Solution *pop, int index, int size)
 		    for(int i = 0; i < 6; i++)
 		    	qsort(temp2.interface[p].formation[i].int_array, temp2.interface[p].formation[i].size, sizeof(int), compare_agenda);
     		}
-    		pop[size - 1 - index] = temp2;
     		update_solution(&temp2);
+    		pop[size - 1 - index] = temp2;
+    		duplicate_formations(pop[size-1-index].interface, temp2.interface);
+    		
     	}
-
 }
 
 //Fonction entièrement conçue et utilisée pour factoriser du code de la fonction croiser
@@ -460,6 +461,7 @@ void add_creneau_croiser(Interface *interface1, Interface interface2, IntegerArr
 	int temps_creneau = creneau[5] - creneau[4];
 	if(check_compatibility(interface1, creneau, temps_creneau) != -1)
 	{
+		printf("TEST : %d\n", interface2.formation[i].int_array[j]);
 		add_element_intarray(&interface1->formation[i], interface2.formation[i].int_array[j]);
 		remove_element_intarray(array_to_update, interface1->formation[i].int_array[j]);
 	}
@@ -471,18 +473,30 @@ void find_best_solution(Solution *best_sol, Solution*pop, int size)
 {
 	double min_z = INFINITY;
 	int index = 0;
-	for(int i = 0; i < size-1; i++)
+	int new_sol = 0;
+	for(int i = 0; i < size; i++)
 	{
-		if(pop[i].z < min_z)
+		
+		if(pop[i].z < min_z && pop[i].z < best_sol->z)
 		{
 			min_z = pop[i].z;
 			index = i;
+			new_sol = 1;
+			
 		}
 	}
-	*best_sol = pop[index];
-	duplicate_formations(best_sol->interface, pop[index].interface);
+	if(new_sol == 1)
+	{
+		//La découverte d'une nouvelle solution signifiant l'allocation de nouvelles ressources, il faut détecter le premier appel à cette fonction car best_sol ne contient aucune mémoire dynamique au premier appel (il ne faut donc pas la libérer)
+		if(best_sol->z != INFINITY)
+			delete_solution_intarrays(best_sol->interface);
+		*best_sol = pop[index];
+		duplicate_formations(best_sol->interface, pop[index].interface);
+	}
 	
+
 }
+
 
 //Calcul des champs de la solution sol 
 void update_solution(Solution *sol) {
