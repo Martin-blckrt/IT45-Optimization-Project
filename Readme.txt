@@ -1,4 +1,4 @@
-Architecture du projet :
+##Architecture du projet :
 Un fichier java InstanceGenerator permettant de modifier les instances générées. Ce fichier a été modifié par rapport à l'original 
 afin d'être plus facilement implémenté dans notre programme. Dorénavant, ce programme sépare les données entre les constantes
 préprocesseurs (fichier constants.h) et les données "brutes" générées (les formations, interfaces et centres, dans le fichier donnees.c). 
