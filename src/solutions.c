@@ -30,7 +30,7 @@ void init_distance_matrix() {
     print_distances();
 }
 
-//Mise à 0 de tous les champs 
+//Mise à 0 de tous les champs
 void init_solution_initiale(Solution *sol)
 {
 	sol->avg_distance = 0;
@@ -55,7 +55,7 @@ void create_from_solution(Solution **sol1, Solution sol2)
 		*sol1 = malloc(sizeof(Solution));
 	}
 	**sol1 = sol2;
-	
+
 	//Recopiage des tableaux dynamiques (=formations associées à chaque jour à chaque interface)
 	duplicate_formations((*sol1)->interface, sol2.interface);
 
@@ -65,12 +65,12 @@ void create_from_solution(Solution **sol1, Solution sol2)
 void solve() {
 
     srand(time(NULL));
-    
+
     //Etablissement de la solution initiale
     Solution solution_initiale;
     init_solution_initiale(&solution_initiale);
     find_init_solution(&solution_initiale);
-    
+
     //Amélioration de la solution initiale par une heuristique "brute" et établissement d'un arbre comprenant un panel de solutions diverses
     Arbre arbre = malloc(sizeof(Node));
     arbre->leftchild = NULL;
@@ -79,51 +79,51 @@ void solve() {
     create_from_solution(&(arbre->solution), solution_initiale);
     delete_solution_intarrays(solution_initiale.interface);
     improve_solution(&arbre, DEPTH);
-    
-    
+
+
     //Tentative de trouver une meilleure solution avec une population issue de l'arbre généré précédemment
     //Stockage du dernier étage de l'arbre dans le tableau population, et affichage des différents z (arbitraire, le choix des solutions à stocker peut être à étudier en fonction de la fonction objectf)
     int size = pow(2, DEPTH);
     Solution *population = malloc(sizeof(Solution) *size);
     find_last_floor(arbre, population, 0);
-    
+
     //Affichage des solutions et tri en fonction de l'ID
     for(int i = 0; i < size; i++)
     {
     	//print_solution(population[i]);
     	//print_z(population[i]);
     }
-    
+
    Solution *best_solution = malloc(sizeof(Solution));
    best_solution->z = INFINITY;
    find_best_solution(best_solution, population, size);
-   
+
    printf("***********************************MEILLEURE SOLUTION AVANT GENETIQUE***************************\n");
    print_z(*best_solution);
    printf("*************************************************************************************************\n");
-	
+
    //Itérations de l'algorithme génétique
-   for(int i = 0; i < 100; i++)
+   for(int i = 0; i < 1000; i++)
    {
 	   for(int j = 0; j < size/2; j++)
 	   {
 	   	//Comprend le choix des interfaces à croiser, le croisement et les réparations des solutions filles
 	   	croiser(&population[j], &population[size-1-j], population, j, size);
 	   }
-	
+
 	//Actualisation de la meilleure solution
    	find_best_solution(best_solution, population, size);
-   	print_z(*best_solution);
+   	//print_z(*best_solution);
    }
    //Free resources
     delete_arbre(arbre);
-    
+
     for(int i = 0; i < size; i++)
     {
     	delete_solution_intarrays(population[i].interface);
     }
     free(population);
-    
+
     delete_solution_intarrays(best_solution->interface);
     free(best_solution);
 }
@@ -161,7 +161,7 @@ void improve_solution(Arbre *head, int depth) {
 	//Amélioration du fils gauche au niveau de l'écart type
     for(int i = 0; i < 10; i++)
         improve_standard_error((*head)->leftchild->solution);
-	
+
 	//Amélioration du fils droit au niveau du nombre de pénalités
     for(int j = 0; j < 30; j++)
         improve_penalties((*head)->rightchild->solution);
@@ -303,31 +303,31 @@ void croiser(Solution *sol1, Solution *sol2, Solution *pop, int index, int size)
 {
 	//Création des deux solutions filles
 	Solution temp = *sol1;
-	Solution temp2 = *sol2;	
+	Solution temp2 = *sol2;
 	duplicate_formations(temp.interface, sol1->interface);
 	duplicate_formations(temp2.interface, sol2->interface);
-	
+
 	//Recherche aléatoire de l'interface sur laquelle le croisement va s'opérer
 	int random_interface_index;
 	Interface *interface1;
 	Interface *interface2;
-	
+
 	do
 	{
 		random_interface_index = rand()%NBR_INTERFACES;
 		interface1 = &sol1->interface[random_interface_index];
 		interface2 = &sol2->interface[random_interface_index];
 	}while(has_formation(*interface1) == -1 || has_formation(*interface2) == -1); //On cherche une interface pour laquelle un croisement va bien donner une nouvelle interface
-	
+
 	Interface *interface1temp = &temp.interface[random_interface_index];
 	Interface *interface2temp = &temp2.interface[random_interface_index];
 
 	//Suppression des formations dans les interfaces correspondantes dans les solutions filles, stockage des formations supprimées afin de vérifier qu'elles sont présentes dans les solutions filles
 	IntegerArray tempformation1[3];
 	IntegerArray tempformation2[3];
-	
+
 	//Suppression des formations que l'on va croiser (ce qui correspond à la deuxieme moitié de semaine de nos deux interfaces changeantes)
-	//Stockage en mémoire des formations supprimées pour vérifier leur présence une fois les solutions filles établies 
+	//Stockage en mémoire des formations supprimées pour vérifier leur présence une fois les solutions filles établies
 	for(int i = 3; i < 6; i++)
 	{
 		duplicate_intarrays(&tempformation1[i-3], interface1temp->formation[i]);
@@ -337,14 +337,14 @@ void croiser(Solution *sol1, Solution *sol2, Solution *pop, int index, int size)
 			remove_element_intarray(&interface1temp->formation[i], interface1temp->formation[i].int_array[0]);
 		for(int p = 0; p < tempformation2[i-3].size; p++)
 			remove_element_intarray(&interface2temp->formation[i], interface2temp->formation[i].int_array[0]);
-		
+
 		for(int p = 0; p < 13; p ++)
 		{
 			interface1temp->agenda[i][p] = 0;
 			interface2temp->agenda[i][p] = 0;
 		}
 	}
-	
+
 	//Croisement des solutions
 	for(int i = 0; i < 3; i++)
 	{
@@ -354,12 +354,12 @@ void croiser(Solution *sol1, Solution *sol2, Solution *pop, int index, int size)
 		for(int j = 0; j < interface1->formation[index].size; j++)
 			add_creneau_croiser(interface2temp, *interface1, &tempformation2[index-3], index, j);
 	}
-	
+
 	//Réparation des solutions
 	//Ces booléens permettent de repérer une réparation infaisable (i.e une formation manquante attribuable à aucune interface)
 	int check_compatibility_temp = 0;
 	int check_compatibility_temp2 = 0;
-	
+
 	//Réparation des doublons
 	for(int i = 3; i < 6; i++)
 	{
@@ -369,7 +369,7 @@ void croiser(Solution *sol1, Solution *sol2, Solution *pop, int index, int size)
 		for(int j = 0; j < interface2temp->formation[i].size; j++)
 			j+=delete_doublons(interface2temp->formation[i].int_array[j], random_interface_index, temp2.interface);
 	}
-	
+
 	//Réparation des formations manquantes
 	for(int i = 3; i < 6; i++)
 	{
@@ -385,13 +385,17 @@ void croiser(Solution *sol1, Solution *sol2, Solution *pop, int index, int size)
 			{
 				//Si ça n'est pas possible, on l'attribue à la première interface possible
 				int p = 0;
-				while(check_compatibility(&temp.interface[p], creneau, temps_creneau) == -1)
+				while(check_compatibility(&temp.interface[p], creneau, temps_creneau) == -1 && p < NBR_INTERFACES)
 					p++;
 				//Si aucune interface n'est compatible, alors solution irréparable
 				if(p == NBR_INTERFACES)
-					check_compatibility_temp = -1;
+                {
+                    printf("pas compatible 1\n");
+                    check_compatibility_temp = -1;
+                }
+
 				else
-					add_element_intarray(&temp.interface[p].formation[i], tempformation1[i-3].int_array[j]); 
+					add_element_intarray(&temp.interface[p].formation[i], tempformation1[i-3].int_array[j]);
 			}
 		}
 		//Pareil pour la solution fille 2
@@ -404,23 +408,26 @@ void croiser(Solution *sol1, Solution *sol2, Solution *pop, int index, int size)
 			else
 			{
 				int p = 0;
-				while(check_compatibility(&temp2.interface[p], creneau, temps_creneau) == -1)
+				while(check_compatibility(&temp2.interface[p], creneau, temps_creneau) == -1 && p < NBR_INTERFACES)
 					p++;
 				if(p == NBR_INTERFACES)
-					check_compatibility_temp2 = -1;
+                {
+                    printf("pas compatible 2\n");
+                    check_compatibility_temp2 = -1;
+                }
 				else
-					add_element_intarray(&temp2.interface[p].formation[i], tempformation2[i-3].int_array[j]); 
+					add_element_intarray(&temp2.interface[p].formation[i], tempformation2[i-3].int_array[j]);
 			}
 		}
 	}
-	
+
 	//Remplacement des anciennes solutions si les nouvelles sont valides
 	for(int i = 0; i < 3; i++)
 	{
 		clean_intarray(&tempformation1[i]);
 		clean_intarray(&tempformation2[i]);
 	}
-	
+
 	if(check_compatibility_temp == -1)
 		delete_solution_intarrays(temp.interface);
 	else
@@ -435,13 +442,13 @@ void croiser(Solution *sol1, Solution *sol2, Solution *pop, int index, int size)
     		pop[index] = temp;
     		duplicate_formations(pop[index].interface, temp2.interface);
 	}
-	
+
 	if(check_compatibility_temp2 == -1)
 		delete_solution_intarrays(temp2.interface);
 	else
 	{
 		delete_solution_intarrays(sol2->interface);
-		
+
 		for(int p = 0; p < NBR_INTERFACES; p++)
 	    	{
 		    for(int i = 0; i < 6; i++)
@@ -450,7 +457,7 @@ void croiser(Solution *sol1, Solution *sol2, Solution *pop, int index, int size)
     		update_solution(&temp2);
     		pop[size - 1 - index] = temp2;
     		duplicate_formations(pop[size-1-index].interface, temp2.interface);
-    		
+
     	}
 }
 
@@ -461,9 +468,9 @@ void add_creneau_croiser(Interface *interface1, Interface interface2, IntegerArr
 	int temps_creneau = creneau[5] - creneau[4];
 	if(check_compatibility(interface1, creneau, temps_creneau) != -1)
 	{
-		printf("TEST : %d\n", interface2.formation[i].int_array[j]);
 		add_element_intarray(&interface1->formation[i], interface2.formation[i].int_array[j]);
 		remove_element_intarray(array_to_update, interface1->formation[i].int_array[j]);
+
 	}
 
 }
@@ -476,13 +483,13 @@ void find_best_solution(Solution *best_sol, Solution*pop, int size)
 	int new_sol = 0;
 	for(int i = 0; i < size; i++)
 	{
-		
+
 		if(pop[i].z < min_z && pop[i].z < best_sol->z)
 		{
 			min_z = pop[i].z;
 			index = i;
 			new_sol = 1;
-			
+
 		}
 	}
 	if(new_sol == 1)
@@ -493,12 +500,12 @@ void find_best_solution(Solution *best_sol, Solution*pop, int size)
 		*best_sol = pop[index];
 		duplicate_formations(best_sol->interface, pop[index].interface);
 	}
-	
+
 
 }
 
 
-//Calcul des champs de la solution sol 
+//Calcul des champs de la solution sol
 void update_solution(Solution *sol) {
     compute_distances_interfaces(sol);
     sol->avg_distance = compute_avg_distance(*sol);
