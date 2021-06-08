@@ -9,6 +9,6 @@ void delete_arbre(Arbre);
 
 int find_last_floor(Arbre, Solution *, int);
 
-void print_arbre(Arbre);
+void print_arbre(Arbre, int);
 
 #endif

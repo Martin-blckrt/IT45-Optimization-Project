@@ -19,12 +19,12 @@ void remplir_agendas(Interface *infos_interface)
         //On recherche la première interface pouvant prendre la formation, si on arrive au bout du tableau des interfaces sans avoir trouvé
         //d'interface valide, alors l'algorithme n'est pas capable de trouver de solution initiale valide
         int p = 0;
-        while(check_compatibility(&(infos_interface[p]), formation[i], temps_creneau) == -1 && p < NBR_FORMATIONS)
+        while(check_compatibility(&(infos_interface[p]), formation[i], temps_creneau) == -1 && p < NBR_INTERFACES)
             p++;
 
-        if(p >= NBR_FORMATIONS)
+        if(p >= NBR_INTERFACES)
         {
-            printf("Impossible d'assigner un des creneaux");
+            printf("Impossible d'assigner un des creneaux, problème non résolvable\n");
             exit(EXIT_FAILURE);
         }
 

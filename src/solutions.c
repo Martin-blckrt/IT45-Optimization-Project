@@ -6,7 +6,7 @@
 #include "tri.h"
 #include "btree.h"
 
-#define DEPTH 8
+#define DEPTH 3
 #define INFLUENCE_STANDARD 10
 #define INFLUENCE_PENALTY 30
 #define ITERATIONS_GENETIQUE 100
@@ -67,7 +67,10 @@ void create_from_solution(Solution **sol1, Solution sol2)
 //Fonction de résolution
 void solve() {
 
+    clock_t begin = clock();
+    
     srand(time(NULL));
+    
 
     //Etablissement de la solution initiale
     Solution solution_initiale;
@@ -82,8 +85,8 @@ void solve() {
     create_from_solution(&(arbre->solution), solution_initiale);
     delete_solution_intarrays(solution_initiale.interface);
     improve_solution(&arbre, DEPTH);
-
-
+    print_arbre(arbre, DEPTH);
+    
     //Tentative de trouver une meilleure solution avec une population issue de l'arbre généré précédemment
     //Stockage du dernier étage de l'arbre dans le tableau population, et affichage des différents z (arbitraire, le choix des solutions à stocker peut être à étudier en fonction de la fonction objectf)
     int size = pow(2, DEPTH);
@@ -116,7 +119,7 @@ void solve() {
 
 	//Actualisation de la meilleure solution
    	find_best_solution(best_solution, population, size);
-   	print_z(*best_solution);
+   	//print_z(*best_solution);
    }
    //Free resources
     delete_arbre(arbre);
@@ -126,9 +129,15 @@ void solve() {
     	delete_solution_intarrays(population[i].interface);
     }
     free(population);
-
+	print_z(*best_solution);
+    print_solution(*best_solution);
     delete_solution_intarrays(best_solution->interface);
     free(best_solution);
+    
+    clock_t end = clock();
+    double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+    
+    printf("\nExec time : %f\n", time_spent);
 }
 
 
@@ -159,7 +168,7 @@ void improve_solution(Arbre *head, int depth) {
 	//Creer deux copies de la solution sol que l'on ajoute à l'arbre binaire
 	add_child(head, *((*head)->solution), 0);
 	add_child(head, *((*head)->solution), 1);
-
+	
 	//Ici, on va itérer un certain nombre de fois une amélioration, cette valeur est un paramètre qui va influer sur l'optimalité des solutions que l'on peut trouver pour un arbre d'une profondeur donnée. Dans notre cas, la pénalité étant plus importante, nous privilégions l'amélioration des pénalité à l'amélioration de l'écart type
 	//Amélioration du fils gauche au niveau de l'écart type
     for(int i = 0; i < INFLUENCE_STANDARD; i++)
@@ -169,7 +178,6 @@ void improve_solution(Arbre *head, int depth) {
     for(int j = 0; j < INFLUENCE_PENALTY; j++)
         improve_penalties((*head)->rightchild->solution);
 
-	//Amélioration des fils gauches et droits
     improve_solution(&((*head)->leftchild), depth-1);
     improve_solution(&((*head)->rightchild), depth-1);
 
@@ -609,8 +617,8 @@ void print_formation() {
 
 void print_z(Solution solution)
 {
-	printf("\n*****************************SOLUTION*************************\n");
-    	printf("z is  : %f \navg distance : %f \nstandard error : %f \nfcorr : %f \npenalties : %d \n", solution.z,
+	//printf("\n*****************************SOLUTION*************************\n");
+    	printf("z is  : %f \navg distance : %f \nstandard error : %f \nfcorr : %f \npenalties : %d \n\n", solution.z,
            solution.avg_distance, solution.standard_error, solution.fcorr, solution.penalties);
 }
 

@@ -6,7 +6,7 @@
 #define NBR_NODES 	      NBR_CENTRES_FORMATION+NBR_INTERFACES+NBR_APPRENANTS
 #define COMPETENCE_SIGNES     0
 #define COMPETENCE_CODAGE     1
-#define SPECIALITE_SANS       -1 /* Enseigné dans le centre le plus proche */
+#define SPECIALITE_SANS       -1 /* EnseignÃ© dans le centre le plus proche */
 #define SPECIALITE_MENUISERIE 0
 #define SPECIALITE_ELECTRICITE 1
 #define SPECIALITE_MECANIQUE 2

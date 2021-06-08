@@ -57,11 +57,18 @@ int find_last_floor(Arbre arbre, Solution *pop, int index)
 
 }
 
-void print_arbre(Arbre arbre)
+void print_arbre(Arbre arbre, int depth)
 {
-	if(arbre == NULL)
+	if(arbre->leftchild == NULL)
 		return;
-	print_solution(*(arbre->solution));
-	print_arbre(arbre->leftchild);
-	print_arbre(arbre->rightchild);
+	printf("*************************Depth %d***********************\n", depth);
+	//printf("Node : \n");
+	//print_solution(*(arbre->solution));
+	printf("Left child : \n");
+	print_z(*(arbre->leftchild->solution));
+	printf("Right child : \n");
+	print_z(*(arbre->rightchild->solution));
+	
+	print_arbre(arbre->leftchild, depth-1);
+	print_arbre(arbre->rightchild, depth-1);
 }

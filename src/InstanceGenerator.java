@@ -24,7 +24,7 @@ public class InstanceGenerator {
     public static int NBR_FORMATIONS_PAR_SEMAINE = 1;
 
     public static int DIMENSION_ZONE_GEOGRAPHIQUE = 200;
-
+	
     public static int NBR_INTERFACES = (int) (NBR_APPRENANTS/4 * 1.2);
     public static int NBR_FORMATIONS = NBR_APPRENANTS * NBR_FORMATIONS_PAR_SEMAINE;
 
