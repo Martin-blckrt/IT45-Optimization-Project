@@ -17,6 +17,8 @@ make
 puis ./executable
 Pour modifier le compilateur, les flags ou autre, voir le makefile
 
+-Pour créer une nouvelle instance et lancer le projet en même temps, taper la commande
+./script
 
 ## Paramétrer le projet : 
 Modifier les constantes préprocesseur dans le fichier solutions.c : <br>

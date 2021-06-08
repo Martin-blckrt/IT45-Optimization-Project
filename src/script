@@ -1,0 +1,6 @@
+#!/bin/bash
+
+javac InstanceGenerator.java
+java InstanceGenerator
+make
+./executable
