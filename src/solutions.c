@@ -6,7 +6,7 @@
 #include "tri.h"
 #include "btree.h"
 
-#define DEPTH 3
+#define DEPTH 8
 #define INFLUENCE_STANDARD 10
 #define INFLUENCE_PENALTY 30
 #define ITERATIONS_GENETIQUE 100
@@ -85,7 +85,7 @@ void solve() {
     create_from_solution(&(arbre->solution), solution_initiale);
     delete_solution_intarrays(solution_initiale.interface);
     improve_solution(&arbre, DEPTH);
-    print_arbre(arbre, DEPTH);
+    //print_arbre(arbre, DEPTH);
     
     //Tentative de trouver une meilleure solution avec une population issue de l'arbre généré précédemment
     //Stockage du dernier étage de l'arbre dans le tableau population, et affichage des différents z (arbitraire, le choix des solutions à stocker peut être à étudier en fonction de la fonction objectf)
@@ -129,7 +129,6 @@ void solve() {
     	delete_solution_intarrays(population[i].interface);
     }
     free(population);
-	print_z(*best_solution);
     print_solution(*best_solution);
     delete_solution_intarrays(best_solution->interface);
     free(best_solution);

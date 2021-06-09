@@ -12,13 +12,13 @@ Finalement, deux fichiers .c btree.c, dintegerarray.c qui sont de simples implé
 javac InstaceGenerator.java
 java InstanceGenerator
 
--Pour lancer le programme sur une instance déjà générée, taper la commande
-make
-puis ./executable
-Pour modifier le compilateur, les flags ou autre, voir le makefile
+-Pour générer une instace, lancer le script generateInstance
 
--Pour créer une nouvelle instance et lancer le projet en même temps, taper la commande
-./script
+-Pour compiler le projet sur une instance générée, lancer le script buld
+
+-Pour exécuter le projet, lancer le script run
+
+Pour modifier le compilateur, les flags ou autre, voir le makefile
 
 ## Paramétrer le projet : 
 Modifier les constantes préprocesseur dans le fichier solutions.c : <br>
